@@ -1,0 +1,323 @@
+html {
+    scroll-behavior: smooth;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --bg-primary: #FFB6C1;
+    --bg-secondary: #1a2332;
+    --accent: #3b82f6;
+    --accent-hover: #2563eb;
+    --text-primary: #e2e8f0;
+    --text-secondary: #94a3b8;
+    --border: #334155;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    line-height: 1.7;
+    min-height: 100vh;
+}
+
+header {
+    background: linear-gradient(135deg, var(--bg-secondary) 0%, #1e3a5f 100%);
+    padding: 3rem 2rem;
+    text-align: center;
+    border-bottom: 2px solid var(--accent);
+}
+
+header h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 0.5rem;
+}
+
+.subtitle {
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+}
+
+main {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+}
+
+.toc {
+    margin-bottom: 2rem;
+}
+
+.toc h2 {
+    margin-bottom: 1rem;
+}
+
+.toc ul {
+    list-style: none;
+    padding: 0;
+}
+
+.toc > ul > li {
+    margin-bottom: 0.5rem;
+}
+
+.toc ul ul {
+    margin-right: 1.25rem;
+    margin-top: 0.35rem;
+}
+
+.toc li {
+    padding: 0.25rem 0;
+    border: none;
+    background: none;
+}
+
+.toc a {
+    color: var(--text-primary);
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.toc a:hover {
+    color: var(--accent);
+}
+
+.toc a:focus {
+    outline: 1px solid var(--accent);
+}
+
+/* Smooth scroll offset for anchor links */
+section[id], h3[id] {
+    scroll-margin-top: 1rem;
+}
+
+.card {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.75rem 2rem;
+    margin-bottom: 1.5rem;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(59, 130, 246, 0.15);
+}
+
+.card h2 {
+    color: var(--accent);
+    font-size: 1.4rem;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.card h3 {
+    color: var(--text-primary);
+    font-size: 1.1rem;
+    margin-top: 1.25rem;
+    margin-bottom: 0.5rem;
+}
+
+.card h3:first-of-type {
+    margin-top: 0;
+}
+
+.card p {
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+}
+
+.card p:last-child {
+    margin-bottom: 0;
+}
+
+.card a {
+    color: var(--accent);
+    text-decoration: none;
+}
+
+.card a:hover {
+    text-decoration: underline;
+}
+
+.card code {
+    background: rgba(59, 130, 246, 0.2);
+    padding: 0.15rem 0.4rem;
+    border-radius: 4px;
+    font-family: 'Consolas', 'Monaco', monospace;
+    font-size: 0.9em;
+    direction: ltr;
+    unicode-bidi: embed;
+}
+
+.card .config-block {
+    margin: 1rem 0;
+    padding: 1rem;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    border-right: 3px solid var(--accent);
+}
+
+.card .config-block p {
+    margin-bottom: 0.5rem;
+}
+
+.card .config-block p:last-child {
+    margin-bottom: 0;
+}
+
+.card .field-detail {
+    margin: 0.75rem 0;
+}
+
+.card .field-detail dt {
+    font-weight: 600;
+    margin-top: 0.5rem;
+    color: var(--accent);
+}
+
+.card .field-detail dt:first-child {
+    margin-top: 0;
+}
+
+.card .field-detail dd {
+    margin-right: 1rem;
+    margin-bottom: 0.25rem;
+}
+
+.card code.block {
+    display: block;
+    padding: 0.5rem 0.75rem;
+    margin: 0.5rem 0;
+    direction: ltr;
+    text-align: left;
+}
+
+/* Login status: commands LTR 16px, explanations RTL 15px */
+.card .login-status-cmds {
+    margin-top: 0.75rem;
+}
+
+.card .cmd-row {
+    display: flex;
+    align-items: baseline;
+    gap: 1rem;
+    margin-bottom: 0.75rem;
+    flex-wrap: wrap;
+    flex-direction: row-reverse;
+}
+
+.card .cmd-row:last-child {
+    margin-bottom: 0;
+}
+
+.card .cmd-ltr {
+    font-size: 16px;
+    direction: ltr;
+    text-align: left;
+    min-width: fit-content;
+}
+
+.card .explain-rtl {
+    font-size: 15px;
+    direction: rtl;
+    text-align: right;
+}
+
+.card .field-detail-inline {
+    margin: 0.5rem 0 1rem 1rem;
+    padding: 0.75rem;
+    background: rgba(0, 0, 0, 0.15);
+    border-radius: 6px;
+}
+
+.card .field-detail-inline .field-detail {
+    margin: 0.5rem 0 0 0;
+}
+
+.card ul {
+    list-style: none;
+    padding: 0;
+}
+
+.card ol.boot-sequence-list {
+    padding-right: 1.5rem;
+    margin: 1rem 0;
+}
+
+.card ol.boot-sequence-list li {
+    padding: 0.5rem 0;
+    border: none;
+    background: none;
+}
+
+.card li {
+    padding: 0.75rem 0;
+    padding-right: 1rem;
+    border-right: 3px solid var(--accent);
+    margin-bottom: 0.5rem;
+    background: rgba(59, 130, 246, 0.08);
+    border-radius: 0 8px 8px 0;
+}
+
+.card li:last-child {
+    margin-bottom: 0;
+}
+
+.card.highlight {
+    border-color: var(--accent);
+    background: linear-gradient(135deg, var(--bg-secondary) 0%, rgba(59, 130, 246, 0.1) 100%);
+}
+
+.summary-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+}
+
+.summary-table th,
+.summary-table td {
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--border);
+    text-align: right;
+}
+
+.summary-table th {
+    background: rgba(59, 130, 246, 0.2);
+    color: var(--accent);
+    font-weight: 600;
+}
+
+.summary-table td {
+    background: rgba(0, 0, 0, 0.1);
+}
+
+.summary-table tr:hover td {
+    background: rgba(59, 130, 246, 0.08);
+}
+
+footer {
+    text-align: center;
+    padding: 2rem;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+@media (max-width: 600px) {
+    header h1 {
+        font-size: 1.8rem;
+    }
+
+    .card {
+        padding: 1.25rem 1.5rem;
+    }
+}

@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Boot Process</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header>
+        <h1>The Boot Process</h1>
+        <p class="subtitle">תהליך האתחול של Linux</p>
+    </header>
+
+    <main>
+        <nav class="toc card">
+            <h2>תוכן העניינים</h2>
+            <ul>
+                <li><a href="#overview">Boot Process Overview</a></li>
+                <li><a href="#boot-sequence">Boot Sequence Simplified</a></li>
+                <li><a href="#grub">GRUB</a></li>
+                <li><a href="#grub1">GRUB version 1</a></li>
+                <li><a href="#grub2">GRUB version 2</a></li>
+                <li><a href="#rescue">Rescue boot</a></li>
+                <li><a href="#summary">Summary</a></li>
+            </ul>
+        </nav>
+
+        <section class="card" id="overview">
+            <h2>Boot Process Overview</h2>
+            <p>תהליך האתחול מתחיל ב-BIOS/UEFI, עובר דרך ה-bootloader, טוען את הקרנל ומאתחל את init/systemd.</p>
+            <div class="login-status-cmds">
+                <div class="cmd-row">
+                    <code class="cmd-ltr">dmesg</code>
+                    <span class="explain-rtl">מציג הודעות האתחול של הקרנל (kernel ring buffer).</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">dmesg | less</code>
+                    <span class="explain-rtl">מציג את הודעות האתחול בגלילה.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">journalctl -b</code>
+                    <span class="explain-rtl">מציג לוג האתחול הנוכחי (עם systemd).</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">runlevel</code>
+                    <span class="explain-rtl">מציג את רמת הריצה הנוכחית (במערכות SysV init).</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">systemctl get-default</code>
+                    <span class="explain-rtl">מציג את ה-target ברירת המחדל (עם systemd).</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="card" id="boot-sequence">
+            <h2>Boot Sequence Simplified</h2>
+            <p>תהליך האתחול במבט פשוט – חמישה שלבים עיקריים:</p>
+            <ol class="boot-sequence-list">
+                <li><strong>BIOS/UEFI</strong> – בודק חומרה, מחפש התקן אתחול (דיסק, USB).</li>
+                <li><strong>Bootloader (GRUB)</strong> – טוען את קרנל Linux לזיכרון ומעביר לו פרמטרים.</li>
+                <li><strong>Kernel</strong> – מאתחל חומרה, טוען drivers, מעמיד מערכת קבצים root.</li>
+                <li><strong>init / systemd</strong> – תהליך האב הראשון (PID 1), מפעיל שירותים.</li>
+                <li><strong>Login</strong> – המערכת מוכנה – getty מציג מסך כניסה.</li>
+            </ol>
+            <p>בקיצור: <code dir="ltr" class="cmd-ltr">BIOS → GRUB → Kernel → systemd → Login</code></p>
+        </section>
+
+        <section class="card" id="grub">
+            <h2>GRUB</h2>
+            <p>GRUB (Grand Unified Bootloader) הוא bootloader הנפוץ ב-Linux. טוען את הקרנל ומעביר לו פרמטרים.</p>
+            <div class="login-status-cmds">
+                <div class="cmd-row">
+                    <code class="cmd-ltr">grub-install /dev/sda</code>
+                    <span class="explain-rtl">מתקין את GRUB על הדיסק (MBR או partition).</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">grub-install --target=i386-pc /dev/sda</code>
+                    <span class="explain-rtl">התקנה ל-BIOS (מערכת ישנה).</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">grub-install --target=x86_64-efi --efi-directory=/boot/efi</code>
+                    <span class="explain-rtl">התקנה ל-UEFI.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">grub-mkconfig -o /boot/grub/grub.cfg</code>
+                    <span class="explain-rtl">יוצר קובץ הגדרות GRUB מחדש (GRUB2).</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="card" id="grub1">
+            <h2>GRUB version 1</h2>
+            <p>GRUB Legacy – גרסה ישנה. קובץ ההגדרה menu.lst נמצא ב-/boot/grub/.</p>
+            <div class="login-status-cmds">
+                <div class="cmd-row">
+                    <code class="cmd-ltr">/boot/grub/menu.lst</code>
+                    <span class="explain-rtl">קובץ ההגדרה הראשי של GRUB 1.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">cat /boot/grub/menu.lst</code>
+                    <span class="explain-rtl">מציג את תוכן קובץ ההגדרה.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">grub</code>
+                    <span class="explain-rtl">מפעיל את ממשק GRUB Legacy (command line).</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">find /boot/vmlinuz</code>
+                    <span class="explain-rtl">פקודת GRUB – מחפש את קובץ הקרנל.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">root (hd0,0)</code>
+                    <span class="explain-rtl">פקודת GRUB – מגדיר partition ראשי.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">kernel /boot/vmlinuz root=/dev/sda1</code>
+                    <span class="explain-rtl">פקודת GRUB – טוען קרנל עם פרמטרים.</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="card" id="grub2">
+            <h2>GRUB version 2</h2>
+            <p>GRUB 2 – הגרסה המודרנית. קובץ ההגדרה grub.cfg נוצר אוטומטית מ-קבצים ב-/etc/grub.d/.</p>
+            <div class="login-status-cmds">
+                <div class="cmd-row">
+                    <code class="cmd-ltr">/boot/grub/grub.cfg</code>
+                    <span class="explain-rtl">קובץ ההגדרה הראשי של GRUB 2 (לא לערוך ישירות).</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">/etc/grub.d/</code>
+                    <span class="explain-rtl">תיקיית סקריפטים ליצירת grub.cfg.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">/etc/default/grub</code>
+                    <span class="explain-rtl">קובץ הגדרות ברירת מחדל ל-GRUB 2.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">update-grub</code>
+                    <span class="explain-rtl">מעדכן את grub.cfg (Debian/Ubuntu).</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">grub2-mkconfig -o /boot/grub2/grub.cfg</code>
+                    <span class="explain-rtl">מעדכן את grub.cfg (Fedora/RHEL עם BIOS).</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">grub2-mkconfig -o /boot/efi/EFI/fedora/grub.cfg</code>
+                    <span class="explain-rtl">מעדכן את grub.cfg (Fedora/RHEL עם UEFI).</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">grub2-editenv list</code>
+                    <span class="explain-rtl">מציג משתני סביבה של GRUB 2.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">grub2-set-default 0</code>
+                    <span class="explain-rtl">מגדיר את ברירת המחדל לאתחול (0=הראשון).</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="card" id="rescue">
+            <h2>Rescue boot</h2>
+            <p>תצורת אתחול חירום – מאפשרת תיקון מערכת כשהאתחול הרגיל נכשל.</p>
+            <div class="login-status-cmds">
+                <div class="cmd-row">
+                    <code class="cmd-ltr">init=/bin/bash</code>
+                    <span class="explain-rtl">פרמטר קרנל – מאתחל ישירות ל-bash במקום init.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">init=/bin/sh</code>
+                    <span class="explain-rtl">מאתחל ל-shell בסיסי.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">single</code>
+                    <span class="explain-rtl">פרמטר קרנל – מאתחל ל-mode single-user.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">systemctl rescue</code>
+                    <span class="explain-rtl">מעבר ל-rescue mode (מערכת מינימלית).</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">systemctl emergency</code>
+                    <span class="explain-rtl">מעבר ל-emergency mode (מינימלי עוד יותר).</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">chroot /mnt/sysimage</code>
+                    <span class="explain-rtl">משנה root ל-partition של המערכת (מתקן דיסק חי).</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">mount -o remount,rw /</code>
+                    <span class="explain-rtl">מעמיד מחדש את / לקריאה-כתיבה.</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="card" id="summary">
+            <h2>Summary</h2>
+            <table class="summary-table">
+                <thead>
+                    <tr>
+                        <th>נושא</th>
+                        <th>תיאור</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>תהליך האתחול</td>
+                        <td>BIOS/UEFI → Bootloader (GRUB) → Kernel → init/systemd</td>
+                    </tr>
+                    <tr>
+                        <td>GRUB 1</td>
+                        <td>קובץ הגדרה: <code dir="ltr">/boot/grub/menu.lst</code></td>
+                    </tr>
+                    <tr>
+                        <td>GRUB 2</td>
+                        <td>grub.cfg נוצר מ-<code dir="ltr">/etc/grub.d/</code> ו-<code dir="ltr">/etc/default/grub</code></td>
+                    </tr>
+                    <tr>
+                        <td>אתחול חירום</td>
+                        <td>init=/bin/bash, single, systemctl rescue/emergency</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+    </main>
+
+    <footer>
+        <p>The Boot Process – תהליך האתחול של Linux</p>
+    </footer>
+
+    <script src="js/script.js"></script>
+</body>
+</html>

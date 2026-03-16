@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Local administration</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header>
+        <h1>Local administration</h1>
+        <p class="subtitle">ניהול מערכת Linux מקומי</p>
+    </header>
+
+    <main>
+        <nav class="toc card">
+            <h2>תוכן העניינים</h2>
+            <ul>
+                <li><a href="#user-management">User Management</a>
+                    <ul>
+                        <li><a href="#users-groups-config">Users and groups configuration files</a></li>
+                        <li><a href="#handling-groups">Handling groups</a></li>
+                        <li><a href="#handling-users">Handling users</a></li>
+                        <li><a href="#login-status">Login status</a></li>
+                        <li><a href="#su-command">The su command</a></li>
+                        <li><a href="#sudo-command">The sudo command</a></li>
+                        <li><a href="#summary">Summary</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </nav>
+
+        <section class="card" id="user-management">
+            <h2>User Management</h2>
+
+            <h3 id="users-groups-config">Users and groups configuration files</h3>
+            <p>
+                מידע על משתמשים וקבוצות נשמר בקבצי טקסט. עריכת הקבצים ישירות מסוכנת; עדיף להשתמש בפקודות הניהול.
+            </p>
+            <div class="config-block">
+                <p><strong><code dir="ltr">/etc/passwd</code></strong> – רשימת משתמשים. כל שורה בפורמט:</p>
+                <code dir="ltr" class="block">username:x:UID:GID:comment:home_dir:shell</code>
+                <dl class="field-detail">
+                    <dt><code dir="ltr">username</code></dt>
+                    <dd>שם המשתמש להתחברות. דוגמה: <code dir="ltr">root</code>, <code dir="ltr">david</code></dd>
+                    <dt><code dir="ltr">x</code></dt>
+                    <dd>מציין שהסיסמה נשמרת ב-shadow (תמיד x). דוגמה: <code dir="ltr">x</code></dd>
+                    <dt><code dir="ltr">UID</code></dt>
+                    <dd>מזהה משתמש ייחודי. 0=root, 1-999=משתמשי מערכת, 1000+=משתמשים רגילים. דוגמה: <code dir="ltr">0</code>, <code dir="ltr">1000</code></dd>
+                    <dt><code dir="ltr">GID</code></dt>
+                    <dd>מזהה קבוצה ראשית. דוגמה: <code dir="ltr">0</code>, <code dir="ltr">100</code></dd>
+                    <dt><code dir="ltr">comment</code></dt>
+                    <dd>שדה הערה (שם מלא או תיאור). דוגמה: <code dir="ltr">root</code>, <code dir="ltr">David Cohen</code></dd>
+                    <dt><code dir="ltr">home_dir</code></dt>
+                    <dd>נתיב תיקיית הבית. דוגמה: <code dir="ltr">/root</code>, <code dir="ltr">/home/david</code></dd>
+                    <dt><code dir="ltr">shell</code></dt>
+                    <dd>נתיב ה-shell ברירת המחדל. דוגמה: <code dir="ltr">/bin/bash</code>, <code dir="ltr">/usr/sbin/nologin</code></dd>
+                </dl>
+                <p>דוגמה מלאה: <code dir="ltr" class="block">root:x:0:0:root:/root:/bin/bash</code></p>
+            </div>
+            <div class="config-block">
+                <p><strong><code dir="ltr">/etc/group</code></strong> – קבוצות. כל שורה בפורמט:</p>
+                <code dir="ltr" class="block">groupname:x:GID:member1,member2,...</code>
+                <dl class="field-detail">
+                    <dt><code dir="ltr">groupname</code></dt>
+                    <dd>שם הקבוצה. דוגמה: <code dir="ltr">users</code>, <code dir="ltr">sudo</code></dd>
+                    <dt><code dir="ltr">x</code></dt>
+                    <dd>מציין שסיסמת הקבוצה ב-gshadow (תמיד x). דוגמה: <code dir="ltr">x</code></dd>
+                    <dt><code dir="ltr">GID</code></dt>
+                    <dd>מזהה קבוצה ייחודי. דוגמה: <code dir="ltr">100</code>, <code dir="ltr">27</code></dd>
+                    <dt><code dir="ltr">members</code></dt>
+                    <dd>רשימת משתמשים בקבוצה, מופרדים בפסיק. דוגמה: <code dir="ltr">alice,bob</code>, <code dir="ltr">david</code></dd>
+                </dl>
+                <p>דוגמה מלאה: <code dir="ltr" class="block">users:x:100:alice,bob,david</code></p>
+            </div>
+            <div class="config-block">
+                <p><strong><code dir="ltr">/etc/shadow</code></strong> – סיסמאות מוצפנות (נגיש רק ל-root). פורמט:</p>
+                <code dir="ltr" class="block">username:encrypted_password:last_changed:min:max:warn:inactive:expire:reserved</code>
+                <dl class="field-detail">
+                    <dt><code dir="ltr">username</code></dt>
+                    <dd>שם המשתמש (תואם ל-passwd). דוגמה: <code dir="ltr">root</code></dd>
+                    <dt><code dir="ltr">encrypted_password</code></dt>
+                    <dd>סיסמה מוצפנת. $6$=SHA-512, !!=חשבון נעול. דוגמה: <code dir="ltr">$6$xyz...abc</code></dd>
+                    <dt><code dir="ltr">last_changed</code></dt>
+                    <dd>יום שינוי אחרון (מ-1.1.1970). דוגמה: <code dir="ltr">19000</code></dd>
+                    <dt><code dir="ltr">min</code></dt>
+                    <dd>ימים מינימליים בין החלפות סיסמה. 0=ללא הגבלה. דוגמה: <code dir="ltr">0</code></dd>
+                    <dt><code dir="ltr">max</code></dt>
+                    <dd>ימים עד תפוגת סיסמה. 99999=ללא תפוגה. דוגמה: <code dir="ltr">99999</code></dd>
+                    <dt><code dir="ltr">warn</code></dt>
+                    <dd>ימים לפני תפוגה להצגת אזהרה. דוגמה: <code dir="ltr">7</code></dd>
+                    <dt><code dir="ltr">inactive</code></dt>
+                    <dd>ימים לאחר תפוגה עד נעילת חשבון. דוגמה: <code dir="ltr">-1</code> (ללא)</dd>
+                    <dt><code dir="ltr">expire</code></dt>
+                    <dd>תאריך תפוגת חשבון (יום). דוגמה: <code dir="ltr">-1</code> (ללא)</dd>
+                    <dt><code dir="ltr">reserved</code></dt>
+                    <dd>שדה שמור לשימוש עתידי. דוגמה: ריק</dd>
+                </dl>
+                <p>דוגמה מלאה: <code dir="ltr" class="block">root:$6$xyz...:19000:0:99999:7:::</code></p>
+            </div>
+            <div class="config-block">
+                <p><strong><code dir="ltr">/etc/gshadow</code></strong> – סיסמאות קבוצות. פורמט:</p>
+                <code dir="ltr" class="block">groupname:encrypted_password:admins:members</code>
+                <dl class="field-detail">
+                    <dt><code dir="ltr">groupname</code></dt>
+                    <dd>שם הקבוצה. דוגמה: <code dir="ltr">sudo</code></dd>
+                    <dt><code dir="ltr">encrypted_password</code></dt>
+                    <dd>סיסמת קבוצה (לשימוש ב-newgrp). ! או !!=ללא סיסמה. דוגמה: <code dir="ltr">!</code></dd>
+                    <dt><code dir="ltr">admins</code></dt>
+                    <dd>משתמשים שיכולים לנהל את הקבוצה. דוגמה: <code dir="ltr">root,david</code></dd>
+                    <dt><code dir="ltr">members</code></dt>
+                    <dd>חברי הקבוצה (תואם ל-/etc/group). דוגמה: <code dir="ltr">alice,bob</code></dd>
+                </dl>
+                <p>דוגמה מלאה: <code dir="ltr" class="block">sudo:!::david,alice</code></p>
+            </div>
+
+            <h3 id="handling-groups">Handling groups</h3>
+            <div class="login-status-cmds">
+                <div class="cmd-row">
+                    <code class="cmd-ltr">groupadd groupname</code>
+                    <span class="explain-rtl">יוצר קבוצה חדשה. דוגמה: <code dir="ltr">groupadd developers</code></span>
+                </div>
+                <div class="field-detail-inline">
+                    <p><strong>שדות ואופציות:</strong></p>
+                    <dl class="field-detail">
+                        <dt><code dir="ltr">-g GID</code></dt>
+                        <dd>מגדיר מזהה קבוצה ספציפי. דוגמה: <code dir="ltr">groupadd -g 1500 developers</code></dd>
+                        <dt><code dir="ltr">-r</code></dt>
+                        <dd>יוצר קבוצת מערכת (GID נמוך). דוגמה: <code dir="ltr">groupadd -r sysgroup</code></dd>
+                        <dt><code dir="ltr">-o</code></dt>
+                        <dd>מאפשר GID כפול. דוגמה: <code dir="ltr">groupadd -o -g 100 newgroup</code></dd>
+                    </dl>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">groupmod [options] groupname</code>
+                    <span class="explain-rtl">משנה מאפייני קבוצה קיימת.</span>
+                </div>
+                <div class="field-detail-inline">
+                    <dl class="field-detail">
+                        <dt><code dir="ltr">-n newname</code></dt>
+                        <dd>משנה את שם הקבוצה. דוגמה: <code dir="ltr">groupmod -n devs developers</code></dd>
+                        <dt><code dir="ltr">-g GID</code></dt>
+                        <dd>משנה את מזהה הקבוצה. דוגמה: <code dir="ltr">groupmod -g 1600 developers</code></dd>
+                    </dl>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">groupdel groupname</code>
+                    <span class="explain-rtl">מוחק קבוצה. הקבוצה חייבת להיות ריקה. דוגמה: <code dir="ltr">groupdel oldgroup</code></span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">gpasswd -a user group</code>
+                    <span class="explain-rtl">מוסיף משתמש לקבוצה. דוגמה: <code dir="ltr">gpasswd -a david developers</code></span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">gpasswd -d user group</code>
+                    <span class="explain-rtl">מסיר משתמש מקבוצה. דוגמה: <code dir="ltr">gpasswd -d david developers</code></span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">gpasswd -A user group</code>
+                    <span class="explain-rtl">מגדיר מנהל קבוצה (יכול להוסיף/להסיר חברים). דוגמה: <code dir="ltr">gpasswd -A alice developers</code></span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">gpasswd -r group</code>
+                    <span class="explain-rtl">מסיר סיסמה מקבוצה. דוגמה: <code dir="ltr">gpasswd -r developers</code></span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">newgrp groupname</code>
+                    <span class="explain-rtl">מחליף את הקבוצה הפעילה של המשתמש (להרצת הפקודה הנוכחית). דוגמה: <code dir="ltr">newgrp developers</code></span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">groups [username]</code>
+                    <span class="explain-rtl">מציג את הקבוצות של משתמש. בלי שם – המשתמש הנוכחי. דוגמה: <code dir="ltr">groups david</code></span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">getent group groupname</code>
+                    <span class="explain-rtl">מציג רשומת קבוצה מ-/etc/group. דוגמה: <code dir="ltr">getent group developers</code></span>
+                </div>
+            </div>
+
+            <h3 id="handling-users">Handling users</h3>
+            <p>
+                <code>useradd</code> יוצר משתמש חדש; <code>usermod</code> משנה מאפיינים (שם, תיקייה, shell, קבוצות); 
+                <code>userdel</code> מוחק משתמש (אופציה <code>-r</code> מוחקת גם תיקיית הבית). 
+                <code>passwd</code> משנה סיסמה; <code>chage</code> מנהל תפוגת סיסמה. 
+                <code>id</code> מציג UID, GID וקבוצות של משתמש.
+            </p>
+
+            <h3 id="login-status">Login status</h3>
+            <div class="login-status-cmds">
+                <div class="cmd-row">
+                    <code class="cmd-ltr">who</code>
+                    <span class="explain-rtl">מציג משתמשים מחוברים למערכת – שם משתמש, טרמינל, זמן כניסה.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">who -a</code>
+                    <span class="explain-rtl">מציג מידע מלא על כל הכניסות הפעילות.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">w</code>
+                    <span class="explain-rtl">מציג משתמשים מחוברים יחד עם הפקודה הפעילה שלהם וזמן idle.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">w [username]</code>
+                    <span class="explain-rtl">מציג סטטוס כניסה עבור משתמש ספציפי.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">last</code>
+                    <span class="explain-rtl">מציג היסטוריית כניסות מהקובץ /var/log/wtmp.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">last -n 20</code>
+                    <span class="explain-rtl">מציג 20 הכניסות האחרונות.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">lastlog</code>
+                    <span class="explain-rtl">מציג את זמן הכניסה האחרון לכל משתמש במערכת.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">users</code>
+                    <span class="explain-rtl">מציג רשימה קצרה של שמות המשתמשים המחוברים.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">id</code>
+                    <span class="explain-rtl">מציג UID, GID וקבוצות של המשתמש הנוכחי.</span>
+                </div>
+            </div>
+
+            <h3 id="su-command">The su command</h3>
+            <p>su (substitute user) מאפשר להתחלף למשתמש אחר. דורש סיסמת היעד (root יכול להחליף בלי סיסמה).</p>
+            <div class="login-status-cmds">
+                <div class="cmd-row">
+                    <code class="cmd-ltr">su username</code>
+                    <span class="explain-rtl">נכנס כמשתמש אך שומר את סביבת המשתמש הנוכחי (PATH, תיקייה). דוגמה: <code dir="ltr">su david</code></span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">su - username</code>
+                    <span class="explain-rtl">כניסה מלאה (login shell) – טוען את סביבת המשתמש היעד. דוגמה: <code dir="ltr">su - david</code></span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">su -</code>
+                    <span class="explain-rtl">מעבר ל-root עם login shell. דוגמה: <code dir="ltr">su -</code></span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">su root</code>
+                    <span class="explain-rtl">מעבר ל-root בלי login shell. דוגמה: <code dir="ltr">su root</code></span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">su -c "command" username</code>
+                    <span class="explain-rtl">מריץ פקודה בודדת כמשתמש אחר וחוזר. דוגמה: <code dir="ltr">su -c "whoami" david</code></span>
+                </div>
+                <div class="field-detail-inline">
+                    <p><strong>שדות ואופציות:</strong></p>
+                    <dl class="field-detail">
+                        <dt><code dir="ltr">-</code> או <code dir="ltr">-l</code> או <code dir="ltr">--login</code></dt>
+                        <dd>כניסה מלאה – טוען סביבת משתמש (HOME, USER, SHELL). דוגמה: <code dir="ltr">su -l david</code></dd>
+                        <dt><code dir="ltr">-c command</code></dt>
+                        <dd>מריץ פקודה בודדת. דוגמה: <code dir="ltr">su -c "ls /root" root</code></dd>
+                        <dt><code dir="ltr">-s shell</code></dt>
+                        <dd>מגדיר shell ספציפי. דוגמה: <code dir="ltr">su -s /bin/bash david</code></dd>
+                        <dt><code dir="ltr">-m</code> או <code dir="ltr">-p</code> או <code dir="ltr">--preserve-environment</code></dt>
+                        <dd>שומר את סביבת המשתמש הנוכחי (HOME, USER). דוגמה: <code dir="ltr">su -m david</code></dd>
+                        <dt><code dir="ltr">username</code></dt>
+                        <dd>שם המשתמש היעד. ברירת מחדל: root. דוגמה: <code dir="ltr">su alice</code></dd>
+                    </dl>
+                </div>
+            </div>
+
+            <h3 id="sudo-command">The sudo command</h3>
+            <p>sudo מריץ פקודה כעל-משתמש (בדרך כלל root) בלי לצאת מהמשתמש הנוכחי. ההרשאות מוגדרות ב-/etc/sudoers. כל פעולה נרשמת – עדיף מ-su לאבטחה.</p>
+            <div class="login-status-cmds">
+                <div class="cmd-row">
+                    <code class="cmd-ltr">sudo command</code>
+                    <span class="explain-rtl">מריץ פקודה בודדת כ-root. דוגמה: <code dir="ltr">sudo apt update</code></span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">sudo -i</code>
+                    <span class="explain-rtl">פותח login shell של root (סביבה מלאה). דוגמה: <code dir="ltr">sudo -i</code></span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">sudo -s</code>
+                    <span class="explain-rtl">פותח shell של root אך שומר את תיקיית המשתמש הנוכחי. דוגמה: <code dir="ltr">sudo -s</code></span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">sudo -u user command</code>
+                    <span class="explain-rtl">מריץ פקודה כמשתמש אחר. דוגמה: <code dir="ltr">sudo -u david whoami</code></span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">sudo -l</code>
+                    <span class="explain-rtl">מציג את הפקודות שהמשתמש מורשה להריץ. דוגמה: <code dir="ltr">sudo -l</code></span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">sudo -v</code>
+                    <span class="explain-rtl">מרענן את תוקף הסיסמה (מאריך את זמן ההרשאה). דוגמה: <code dir="ltr">sudo -v</code></span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">sudo -k</code>
+                    <span class="explain-rtl">מבטל את תוקף הסיסמה – הפקודה הבאה תדרוש סיסמה מחדש. דוגמה: <code dir="ltr">sudo -k</code></span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">visudo</code>
+                    <span class="explain-rtl">עורך את קובץ /etc/sudoers בצורה מאובטחת (בדיקת תחביר). דוגמה: <code dir="ltr">sudo visudo</code></span>
+                </div>
+                <div class="field-detail-inline">
+                    <p><strong>שדות ואופציות:</strong></p>
+                    <dl class="field-detail">
+                        <dt><code dir="ltr">-i</code> או <code dir="ltr">--login</code></dt>
+                        <dd>login shell של root – טוען HOME=/root, USER=root. דוגמה: <code dir="ltr">sudo -i</code></dd>
+                        <dt><code dir="ltr">-s</code> או <code dir="ltr">--shell</code></dt>
+                        <dd>מריץ shell של root אך שומר את HOME הנוכחי. דוגמה: <code dir="ltr">sudo -s</code></dd>
+                        <dt><code dir="ltr">-u user</code> או <code dir="ltr">--user=user</code></dt>
+                        <dd>מריץ כמשתמש שצוין. דוגמה: <code dir="ltr">sudo -u www-data cat /var/log/nginx/error.log</code></dd>
+                        <dt><code dir="ltr">-l</code> או <code dir="ltr">--list</code></dt>
+                        <dd>מציג הרשאות sudo של המשתמש. דוגמה: <code dir="ltr">sudo -l</code></dd>
+                        <dt><code dir="ltr">-v</code> או <code dir="ltr">--validate</code></dt>
+                        <dd>מרענן timeout – מאריך את זמן ההרשאה (ברירת מחדל 15 דקות). דוגמה: <code dir="ltr">sudo -v</code></dd>
+                        <dt><code dir="ltr">-k</code> או <code dir="ltr">--reset-timestamp</code></dt>
+                        <dd>מאפס את ה-timeout – הפקודה הבאה תבקש סיסמה. דוגמה: <code dir="ltr">sudo -k</code></dd>
+                        <dt><code dir="ltr">-b</code> או <code dir="ltr">--background</code></dt>
+                        <dd>מריץ את הפקודה ברקע. דוגמה: <code dir="ltr">sudo -b service nginx start</code></dd>
+                        <dt><code dir="ltr">-n</code> או <code dir="ltr">--non-interactive</code></dt>
+                        <dd>לא מבקש סיסמה – נכשל אם נדרשת הרשאה. דוגמה: <code dir="ltr">sudo -n true</code></dd>
+                    </dl>
+                </div>
+            </div>
+
+            <h3 id="summary">Summary</h3>
+            <table class="summary-table">
+                <thead>
+                    <tr>
+                        <th>נושא</th>
+                        <th>תיאור</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>קבצי הגדרה</td>
+                        <td><code dir="ltr">/etc/passwd</code>, <code dir="ltr">/etc/group</code>, <code dir="ltr">/etc/shadow</code></td>
+                    </tr>
+                    <tr>
+                        <td>פקודות ניהול</td>
+                        <td>יצירה ועריכה של משתמשים וקבוצות</td>
+                    </tr>
+                    <tr>
+                        <td>סטטוס כניסה</td>
+                        <td><code dir="ltr">who</code>, <code dir="ltr">w</code>, <code dir="ltr">last</code>, <code dir="ltr">lastlog</code></td>
+                    </tr>
+                    <tr>
+                        <td>הרשאות מוגברות</td>
+                        <td>su / sudo להרצת פקודות</td>
+                    </tr>
+                    <tr>
+                        <td>המלצת אבטחה</td>
+                        <td>שימוש ב-sudo במקום כניסה ישירה כ-root</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+       
+    <script src="js/script.js"></script>
+</body>
+</html>

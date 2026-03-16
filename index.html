@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Linux</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header>
+        <h1>Linux</h1>
+        <p class="subtitle">מערכות הפעלה פתוחות וחזקות</p>
+    </header>
+
+    <main>
+        <section class="card">
+            <h2>מהו Unix?</h2>
+            <p>
+                Unix היא מערכת הפעלה שפותחה במעבדות Bell של AT&T בשנות ה-70 של המאה ה-20. 
+                היא נבנתה בשפת C ונועדה להיות מערכת הפעלה ניידת, רב-משתמשית ורב-משימתית.
+            </p>
+            <p>
+                Unix הפכה לבסיס לפיתוח מערכות הפעלה רבות אחרות והשפיעה עמוקות על עולם המחשוב. 
+                עקרונותיה – כמו פילוסופיית "עשה דבר אחד ועשה אותו טוב" – ממשיכים להשפיע על תוכנה עד היום.
+            </p>
+        </section>
+
+        <section class="card">
+            <h2>מהו Linux?</h2>
+            <p>
+                Linux היא קרנל (kernel) – ליבת מערכת ההפעלה – שפותח על ידי לינוס טורוולדס בשנת 1991. 
+                Linux הוא קוד פתוח (open source) ומתפקד תחת רישיון GPL.
+            </p>
+            <p>
+                בפועל, כאשר אנשים אומרים "Linux" הם בדרך כלל מתכוונים ל"הפצת Linux" (Linux distribution) – 
+                מערכת הפעלה מלאה הכוללת את קרנל Linux יחד עם כלים, תוכנות וסביבת שולחן עבודה. 
+                דוגמאות: Ubuntu, Fedora, Debian, Arch Linux.
+            </p>
+        </section>
+
+        <section class="card">
+            <h2>היכן משתמשים ב-Unix וב-Linux?</h2>
+            <ul>
+                <li>
+                    <strong>שרתים:</strong> רוב שרתי האינטרנט בעולם רצים על Linux (Apache, Nginx). 
+                    שרתי ענן כמו AWS, Google Cloud ו-Azure משתמשים ב-Linux באופן נרחב.
+                </li>
+                <li>
+                    <strong>מחשבי-על:</strong> כל 500 מחשבי העל המובילים בעולם רצים על Linux.
+                </li>
+                <li>
+                    <strong>מכשירים מובילים:</strong> אנדרואיד מבוססת על קרנל Linux – מכשירים של מיליארדי משתמשים.
+                </li>
+                <li>
+                    <strong>מערכות משובצות:</strong> רכבים, רובוטים, IoT, מכשירי רשת (נתבים, מתגים).
+                </li>
+                <li>
+                    <strong>מחשבים אישיים:</strong> הפצות כמו Ubuntu ו-Fedora פופולריות למשתמשים שמחפשים חלופה חינמית ל-Windows.
+                </li>
+            </ul>
+        </section>
+
+        <section class="card">
+            <h2>Boot Process Overview</h2>
+            <p>
+                תהליך האתחול של Linux מתחיל ב-BIOS/UEFI שמטעין את ה-bootloader (כמו GRUB). 
+                ה-bootloader טוען את קרנל Linux לזיכרון, שמאתחל את init (או systemd) – תהליך האב הראשון (PID 1).
+            </p>
+            <p>
+                systemd מפעיל את שאר השירותים לפי targets. התהליך מסתיים כשהמערכת מגיעה למצב multiuser או graphical.
+            </p>
+            <p><a href="BootProcess.html">לעמוד תהליך האתחול המלא</a></p>
+        </section>
+
+        <section class="card highlight">
+            <h2>Unix vs Linux</h2>
+            <p>
+                Unix היא מערכת הפעלה מסחרית (מקורית) עם וריאציות כמו macOS, Solaris ו-AIX. 
+                Linux היא קרנל חינמי ופתוח שמתנהג כמו Unix אך לא מבוסס על קוד Unix המקורי. 
+                שניהם משפחות מערכות הפעלה דמויות Unix (Unix-like).
+            </p>
+        </section>
+    </main>
+
+    <footer>
+        <p>למידע נוסף על Linux והפצות</p>
+    </footer>
+
+    <script src="js/script.js"></script>
+</body>
+</html>
