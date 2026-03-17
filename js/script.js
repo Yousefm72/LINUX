@@ -1,6 +1,6 @@
 // Linux - Interactive enhancements
 
-// Visitor counter (admin-only)
+// Visitor counter (admin-only) - change ADMIN_PASSWORD to your secret
 const ADMIN_PASSWORD = 'Alqmy876';
 const VISITOR_COUNT_KEY = 'linux_site_visits';
 
