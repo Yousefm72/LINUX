@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Process Management</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .content-ltr { direction: ltr; text-align: left; }
+        .content-rtl { direction: rtl; text-align: right; }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Process Management</h1>
+        <p class="subtitle">ניהול תהליכים ב-Linux ו-Solaris</p>
+        <nav class="header-links">
+            <a href="index.html" class="link-btn">Return to Home</a>
+        </nav>
+    </header>
+
+    <main>
+        <nav class="toc card">
+            <h2 class="content-rtl">תוכן העניינים</h2>
+            <ul class="content-rtl">
+                <li><a href="#process-architecture">The process architecture</a></li>
+                <li><a href="#handling-linux">Handling processes on Linux</a></li>
+                <li><a href="#handling-solaris">Handling processes on Solaris</a></li>
+                <li><a href="#summary">Summary in Hebrew with Examples</a></li>
+            </ul>
+        </nav>
+
+        <section class="card" id="process-architecture">
+            <h2 class="content-ltr">The process architecture</h2>
+            <p class="content-rtl">
+                תהליך (process) הוא מופע של תוכנה שרצה. לכל תהליך יש PID (Process ID) ייחודי, PPID (Parent Process ID), 
+                מצב (running, sleeping, zombie), ומשאבים (זיכרון, file descriptors).
+            </p>
+            <p class="content-rtl">
+                במערכות Unix-like, תהליך init/systemd הוא תהליך האב הראשון (PID 1). כל התהליכים נוצרים ב-fork ו-exec. 
+                תהליכים יכולים ליצור תהליכי ילד (child processes) ולהיות חלק מעץ תהליכים.
+            </p>
+            <div class="login-status-cmds">
+                <div class="cmd-row">
+                    <code class="cmd-ltr">PID</code>
+                    <span class="explain-rtl">מזהה תהליך ייחודי (Process ID).</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">PPID</code>
+                    <span class="explain-rtl">מזהה תהליך האב (Parent Process ID).</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">/proc/</code>
+                    <span class="explain-rtl">מערכת קבצים וירטואלית עם מידע על תהליכים (Linux).</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">fork() / exec()</code>
+                    <span class="explain-rtl">מנגנון יצירת תהליכים – שכפול ואז החלפת תמונה.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">Owner</code>
+                    <span class="explain-rtl">המשתמש שהפעיל את התהליך (UID). קובע הרשאות גישה למשאבים.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">GROUP</code>
+                    <span class="explain-rtl">הקבוצה של התהליך (GID). משפיעה על הרשאות קבוצתיות.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">PRIORITY</code>
+                    <span class="explain-rtl">עדיפות התהליך – קובעת כמה זמן CPU יוקצה (nice value, 0 עד 39).</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">Scheduling Class</code>
+                    <span class="explain-rtl">מחלקת תזמון – איך ה-kernel מקצה זמן CPU (TS, RT, FF, SYS וכו').</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="card" id="handling-linux">
+            <h2 class="content-ltr">Handling processes on Linux</h2>
+            <p class="content-rtl">
+                ניהול תהליכים ב-Linux מתבצע עם פקודות כמו <code dir="ltr">ps</code>, <code dir="ltr">top</code>, <code dir="ltr">kill</code>, <code dir="ltr">pgrep</code>, <code dir="ltr">pkill</code>.
+            </p>
+            <div class="login-status-cmds">
+                <div class="cmd-row">
+                    <code class="cmd-ltr">ps</code>
+                    <span class="explain-rtl">מציג תהליכים. דוגמאות: <code dir="ltr">ps aux</code>, <code dir="ltr">ps -ef</code></span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">top</code>
+                    <span class="explain-rtl">מציג תהליכים בזמן אמת עם עדכון דינמי.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">htop</code>
+                    <span class="explain-rtl">ממשק משופר ל-top עם ניווט מקלדת.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">pgrep pattern</code>
+                    <span class="explain-rtl">מחפש תהליכים לפי שם ומחזיר PIDs.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">pkill pattern</code>
+                    <span class="explain-rtl">שולח סיגנל לתהליכים התואמים (ברירת מחדל: SIGTERM).</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">kill PID</code>
+                    <span class="explain-rtl">שולח SIGTERM (15) – בקשה לעצירה עדינה.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">kill -9 PID</code>
+                    <span class="explain-rtl">שולח SIGKILL (9) – עצירה מיידית.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">killall processname</code>
+                    <span class="explain-rtl">שולח סיגנל לכל התהליכים בשם נתון.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">nice / renice</code>
+                    <span class="explain-rtl">משנה עדיפות (priority) של תהליך.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">nohup command</code>
+                    <span class="explain-rtl">מריץ פקודה שתמשיך גם אחרי ניתוק הטרמינל.</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="card" id="handling-solaris">
+            <h2 class="content-ltr">Handling processes on Solaris</h2>
+            <p class="content-rtl">
+                Solaris (Oracle) משתמש בכלים דומים אך עם הבדלים. <code dir="ltr">prstat</code> דומה ל-<code dir="ltr">top</code>, 
+                <code dir="ltr">pgrep</code> ו-<code dir="ltr">pkill</code> קיימים, ו-<code dir="ltr">ps</code> עם אופציות שונות.
+            </p>
+            <div class="login-status-cmds">
+                <div class="cmd-row">
+                    <code class="cmd-ltr">prstat</code>
+                    <span class="explain-rtl">מציג תהליכים בזמן אמת (מקביל ל-top ב-Linux).</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">prstat -a</code>
+                    <span class="explain-rtl">מציג תהליכים לפי משתמש.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">ps -ef</code>
+                    <span class="explain-rtl">מציג את כל התהליכים (פורמט מלא).</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">ps -e -o pid,ppid,comm</code>
+                    <span class="explain-rtl">מציג PID, PPID ושם פקודה.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">pgrep -l pattern</code>
+                    <span class="explain-rtl">מחפש תהליכים ומציג PID ושם.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">pkill pattern</code>
+                    <span class="explain-rtl">שולח SIGTERM לתהליכים התואמים.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">kill PID</code>
+                    <span class="explain-rtl">שולח סיגנל לתהליך (SIGTERM).</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">kill -9 PID</code>
+                    <span class="explain-rtl">SIGKILL – עצירה כפויה.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">preap PID</code>
+                    <span class="explain-rtl">מנקה תהליכי zombie (reap) ב-Solaris.</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="card highlight" id="summary">
+            <h2 class="content-rtl">סיכום בעברית עם דוגמאות</h2>
+            <div class="content-rtl">
+                <p><strong>ארכיטקטורת תהליכים:</strong> לכל תהליך PID ו-PPID. init/systemd הוא PID 1. תהליכים נוצרים ב-fork/exec.</p>
+                <p><strong>Linux – פקודות עיקריות:</strong></p>
+                <ul style="list-style: none; padding: 0;">
+                    <li><code dir="ltr" class="cmd-ltr">ps aux</code> – הצגת כל התהליכים</li>
+                    <li><code dir="ltr" class="cmd-ltr">top</code> – מעקב בזמן אמת</li>
+                    <li><code dir="ltr" class="cmd-ltr">kill 1234</code> – עצירה עדינה (SIGTERM)</li>
+                    <li><code dir="ltr" class="cmd-ltr">kill -9 1234</code> – עצירה כפויה (SIGKILL)</li>
+                    <li><code dir="ltr" class="cmd-ltr">pgrep nginx</code> – חיפוש PID של nginx</li>
+                </ul>
+                <p><strong>Solaris – פקודות עיקריות:</strong></p>
+                <ul style="list-style: none; padding: 0;">
+                    <li><code dir="ltr" class="cmd-ltr">prstat</code> – מעקב תהליכים (מקביל ל-top)</li>
+                    <li><code dir="ltr" class="cmd-ltr">ps -ef</code> – רשימת תהליכים</li>
+                    <li><code dir="ltr" class="cmd-ltr">pkill processname</code> – שליחת סיגנל לפי שם</li>
+                    <li><code dir="ltr" class="cmd-ltr">preap PID</code> – ניקוי zombie</li>
+                </ul>
+                <p><strong>הבדל מרכזי:</strong> Solaris משתמש ב-<code dir="ltr">prstat</code> במקום <code dir="ltr">top</code>, ו-<code dir="ltr">preap</code> לניקוי תהליכי zombie.</p>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>Process Management – ניהול תהליכים</p>
+    </footer>
+
+    <script src="js/script.js"></script>
+</body>
+</html>

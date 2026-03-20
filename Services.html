@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Services</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .content-ltr { direction: ltr; text-align: left; }
+        .content-rtl { direction: rtl; text-align: right; }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Services</h1>
+        <p class="subtitle">שירותי Linux – SysV ו-systemd</p>
+        <nav class="header-links">
+            <a href="index.html" class="link-btn">Return to Home</a>
+        </nav>
+    </header>
+
+    <main>
+        <nav class="toc card">
+            <h2 class="content-rtl">תוכן העניינים</h2>
+            <ul class="content-rtl">
+                <li><a href="#run-levels">Linux Run Levels</a></li>
+                <li><a href="#sysv-services">SYS-V Services</a></li>
+                <li><a href="#handling-sysv">Handling SYS-V Services</a></li>
+                <li><a href="#systemd-services">SYSTEMD Services</a></li>
+                <li><a href="#handling-systemd">Handling SYSTEMD Services</a></li>
+                <li><a href="#dependencies">Dependencies</a></li>
+                <li><a href="#create-service">Create Your Own Service</a></li>
+                <li><a href="#summary">Summary in Hebrew with Examples</a></li>
+            </ul>
+        </nav>
+
+        <section class="card" id="run-levels">
+            <h2 class="content-ltr">Linux Run Levels</h2>
+            <p class="content-rtl">
+                רמות ריצה (Run Levels) מגדירות את מצב המערכת – אילו שירותים פעילים. במערכות SysV init יש רמות 0–6.
+            </p>
+            <div class="config-block content-ltr">
+                <p><strong>Run Level 0</strong> – Halt (כיבוי המערכת)</p>
+                <p><strong>Run Level 1</strong> – Single-user mode (מצב משתמש יחיד, תיקון)</p>
+                <p><strong>Run Level 2</strong> – Multi-user, no NFS (רב-משתמש ללא רשת)</p>
+                <p><strong>Run Level 3</strong> – Full multi-user (רב-משתמש מלא, טקסט)</p>
+                <p><strong>Run Level 4</strong> – Unused (לא בשימוש)</p>
+                <p><strong>Run Level 5</strong> – Graphical (ממשק גרפי)</p>
+                <p><strong>Run Level 6</strong> – Reboot (הפעלה מחדש)</p>
+            </div>
+            <div class="login-status-cmds">
+                <div class="cmd-row">
+                    <code class="cmd-ltr">runlevel</code>
+                    <span class="explain-rtl">מציג את רמת הריצה הנוכחית והקודמת.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">init 3</code>
+                    <span class="explain-rtl">מעבר לרמת ריצה 3 (רב-משתמש).</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="card" id="sysv-services">
+            <h2 class="content-ltr">SYS-V Services</h2>
+            <p class="content-rtl">
+                שירותי SysV (System V) הם שיטת הניהול המסורתית. כל שירות הוא סקריפט ב-<code dir="ltr">/etc/init.d/</code> 
+                עם פקודות start, stop, restart, status. קישורים סימבוליים ב-<code dir="ltr">/etc/rcN.d/</code> 
+                (N = רמת ריצה) קובעים מתי השירות מופעל.
+            </p>
+            <div class="login-status-cmds">
+                <div class="cmd-row">
+                    <code class="cmd-ltr">/etc/init.d/</code>
+                    <span class="explain-rtl">תיקיית סקריפטי השירותים.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">/etc/rc.d/rc3.d/</code>
+                    <span class="explain-rtl">קישורים לשירותים ברמת ריצה 3 (S=start, K=kill).</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">chkconfig --list</code>
+                    <span class="explain-rtl">מציג את מצב השירותים בכל רמות הריצה (RHEL/Fedora).</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="card" id="handling-sysv">
+            <h2 class="content-ltr">Handling SYS-V Services</h2>
+            <p class="content-rtl">
+                ניהול שירותי SysV מתבצע דרך הפקודה <code dir="ltr">service</code> או ישירות דרך הסקריפטים.
+            </p>
+            <div class="login-status-cmds">
+                <div class="cmd-row">
+                    <code class="cmd-ltr">service servicename start</code>
+                    <span class="explain-rtl">מפעיל שירות.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">service servicename stop</code>
+                    <span class="explain-rtl">עוצר שירות.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">service servicename restart</code>
+                    <span class="explain-rtl">מפעיל מחדש שירות.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">service servicename status</code>
+                    <span class="explain-rtl">מציג סטטוס שירות.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">chkconfig servicename on</code>
+                    <span class="explain-rtl">מפעיל שירות באתחול (RHEL/Fedora).</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">chkconfig servicename off</code>
+                    <span class="explain-rtl">מבטל הפעלה אוטומטית.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">update-rc.d servicename defaults</code>
+                    <span class="explain-rtl">מפעיל שירות באתחול (Debian/Ubuntu).</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="card" id="systemd-services">
+            <h2 class="content-ltr">SYSTEMD Services</h2>
+            <p class="content-rtl">
+                systemd הוא מנהל השירותים המודרני ב-Linux. הוא מחליף את init ומנהל יחידות (units) – שירותים, 
+                sockets, targets. קבצי יחידה נמצאים ב-<code dir="ltr">/etc/systemd/system/</code> 
+                ו-<code dir="ltr">/lib/systemd/system/</code>.
+            </p>
+            <div class="login-status-cmds">
+                <div class="cmd-row">
+                    <code class="cmd-ltr">.service</code>
+                    <span class="explain-rtl">סוג יחידה – שירות/דמון.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">.target</code>
+                    <span class="explain-rtl">קבוצת יחידות (מקביל ל-run level).</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">/etc/systemd/system/</code>
+                    <span class="explain-rtl">יחידות מותאמות מנהל.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">/lib/systemd/system/</code>
+                    <span class="explain-rtl">יחידות מהחבילות.</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="card" id="handling-systemd">
+            <h2 class="content-ltr">Handling SYSTEMD Services</h2>
+            <p class="content-rtl">
+                ניהול שירותי systemd מתבצע דרך <code dir="ltr">systemctl</code>.
+            </p>
+            <div class="login-status-cmds">
+                <div class="cmd-row">
+                    <code class="cmd-ltr">systemctl start servicename</code>
+                    <span class="explain-rtl">מפעיל שירות.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">systemctl stop servicename</code>
+                    <span class="explain-rtl">עוצר שירות.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">systemctl restart servicename</code>
+                    <span class="explain-rtl">מפעיל מחדש שירות.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">systemctl reload servicename</code>
+                    <span class="explain-rtl">טוען מחדש הגדרות בלי לעצור.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">systemctl status servicename</code>
+                    <span class="explain-rtl">מציג סטטוס מפורט.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">systemctl enable servicename</code>
+                    <span class="explain-rtl">מפעיל שירות באתחול.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">systemctl disable servicename</code>
+                    <span class="explain-rtl">מבטל הפעלה אוטומטית.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">systemctl list-units --type=service</code>
+                    <span class="explain-rtl">מציג את כל השירותים הפעילים.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">systemctl get-default</code>
+                    <span class="explain-rtl">מציג את ה-target ברירת המחדל.</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="card" id="dependencies">
+            <h2 class="content-ltr">Dependencies</h2>
+            <p class="content-rtl">
+                שירותים יכולים להיות תלויים בשירותים אחרים. systemd מנהל תלויות אוטומטית – שירות לא יופעל 
+                לפני שהתלויות שלו פעילות. ב-SysV יש לטפל בסדר ההפעלה ידנית (מספרי S/K).
+            </p>
+            <div class="login-status-cmds">
+                <div class="cmd-row">
+                    <code class="cmd-ltr">After=network.target</code>
+                    <span class="explain-rtl">שירות יופעל אחרי network.target.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">Requires=sshd.service</code>
+                    <span class="explain-rtl">דורש ש-sshd פעיל.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">systemctl list-dependencies servicename</code>
+                    <span class="explain-rtl">מציג את תלויות השירות.</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="card" id="create-service">
+            <h2 class="content-ltr">Create Your Own Service</h2>
+            <p class="content-rtl">
+                ליצירת שירות systemd, יוצרים קובץ <code dir="ltr">.service</code> ב-<code dir="ltr">/etc/systemd/system/</code> 
+                ומריצים <code dir="ltr">systemctl daemon-reload</code>.
+            </p>
+            <div class="config-block">
+                <p class="content-ltr"><strong>Example: /etc/systemd/system/myservice.service</strong></p>
+                <pre class="content-ltr" dir="ltr" style="direction:ltr; text-align:left; background:rgba(0,0,0,0.2); padding:1rem; border-radius:8px; overflow-x:auto;"><code>[Unit]
+Description=My Custom Service
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/myapp
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target</code></pre>
+            </div>
+            <div class="login-status-cmds">
+                <div class="cmd-row">
+                    <code class="cmd-ltr">systemctl daemon-reload</code>
+                    <span class="explain-rtl">טוען מחדש את קבצי היחידות.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">systemctl enable myservice</code>
+                    <span class="explain-rtl">מפעיל את השירות באתחול.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">systemctl start myservice</code>
+                    <span class="explain-rtl">מפעיל את השירות כעת.</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="card highlight" id="summary">
+            <h2 class="content-rtl">סיכום בעברית עם דוגמאות</h2>
+            <div class="content-rtl">
+                <p><strong>רמות ריצה:</strong> 0=כיבוי, 1=משתמש יחיד, 3=רב-משתמש, 5=גרפי, 6=הפעלה מחדש.</p>
+                <p><strong>SysV:</strong> שירותים ב-<code dir="ltr">/etc/init.d/</code>, ניהול עם <code dir="ltr">service</code> ו-<code dir="ltr">chkconfig</code>.</p>
+                <p><strong>systemd:</strong> יחידות ב-<code dir="ltr">/etc/systemd/system/</code>, ניהול עם <code dir="ltr">systemctl</code>.</p>
+                <p><strong>דוגמאות פקודות:</strong></p>
+                <ul style="list-style: none; padding: 0;">
+                    <li><code dir="ltr" class="cmd-ltr">systemctl start nginx</code> – מפעיל nginx</li>
+                    <li><code dir="ltr" class="cmd-ltr">systemctl enable nginx</code> – הפעלה אוטומטית באתחול</li>
+                    <li><code dir="ltr" class="cmd-ltr">systemctl status nginx</code> – מציג סטטוס</li>
+                    <li><code dir="ltr" class="cmd-ltr">service apache2 restart</code> – הפעלה מחדש (SysV)</li>
+                </ul>
+                <p><strong>יצירת שירות:</strong> קובץ <code dir="ltr">.service</code> עם [Unit], [Service], [Install], ואז <code dir="ltr">daemon-reload</code> ו-<code dir="ltr">enable</code>.</p>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>Services – שירותי Linux</p>
+    </footer>
+
+    <script src="js/script.js"></script>
+</body>
+</html>

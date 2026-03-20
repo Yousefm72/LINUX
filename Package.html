@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Package</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .content-ltr { direction: ltr; text-align: left; }
+        .content-rtl { direction: rtl; text-align: right; }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Package</h1>
+        <p class="subtitle">ניהול חבילות ב-Linux</p>
+        <nav class="header-links">
+            <a href="index.html" class="link-btn">Return to Home</a>
+        </nav>
+    </header>
+
+    <main>
+        <nav class="toc card">
+            <h2 class="content-rtl">תוכן העניינים</h2>
+            <ul class="content-rtl">
+                <li><a href="#packages-linux">Packages on Linux</a></li>
+                <li><a href="#apt-ubuntu">Using apt on Ubuntu</a></li>
+                <li><a href="#yum-centos">Using yum on CentOS</a></li>
+                <li><a href="#summary">Summary in Hebrew with Examples</a></li>
+            </ul>
+        </nav>
+
+        <section class="card" id="packages-linux">
+            <h2 class="content-ltr">Packages on Linux</h2>
+            <p class="content-rtl">
+                חבילות (Packages) הן יחידות התקנה של תוכנה ב-Linux. כל חבילה מכילה קבצים, תלויות (dependencies) ומטא-דאטה. 
+                מנהלי חבילות מטפלים בהתקנה, עדכון והסרה.
+            </p>
+            <p class="content-rtl">
+                שתי משפחות עיקריות: <strong>Debian-based</strong> (Ubuntu, Debian) משתמשת ב-<code dir="ltr">.deb</code> ו-<code dir="ltr">apt</code>; 
+                <strong>RHEL-based</strong> (CentOS, Fedora, RHEL) משתמשת ב-<code dir="ltr">.rpm</code> ו-<code dir="ltr">yum</code> או <code dir="ltr">dnf</code>.
+            </p>
+            <p class="content-rtl">
+                <strong>DPKG</strong> – כלי ברמה נמוכה לניהול חבילות <code dir="ltr">.deb</code>. <code dir="ltr">apt</code> משתמש ב-dpkg מתחת למכסה.
+            </p>
+            <p class="content-rtl">
+                <strong>RPM</strong> – כלי ברמה נמוכה לניהול חבילות <code dir="ltr">.rpm</code>. <code dir="ltr">yum</code> ו-<code dir="ltr">dnf</code> משתמשים ב-rpm מתחת למכסה.
+            </p>
+            <div class="login-status-cmds">
+                <div class="cmd-row">
+                    <code class="cmd-ltr">.deb</code>
+                    <span class="explain-rtl">פורמט חבילה של Debian/Ubuntu.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">.rpm</code>
+                    <span class="explain-rtl">פורמט חבילה של Red Hat/CentOS/Fedora.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">/var/lib/dpkg/</code>
+                    <span class="explain-rtl">מסד נתונים של חבילות מותקנות (Debian).</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">/var/lib/rpm/</code>
+                    <span class="explain-rtl">מסד נתונים של חבילות מותקנות (RPM).</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">dpkg -i package.deb</code>
+                    <span class="explain-rtl">מתקין חבילת .deb.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">dpkg -r packagename</code>
+                    <span class="explain-rtl">מסיר חבילה אך משאיר קבצי הגדרה.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">dpkg -P packagename</code>
+                    <span class="explain-rtl">מסיר חבילה יחד עם קבצי הגדרה (purge).</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">dpkg -l</code>
+                    <span class="explain-rtl">מציג את כל החבילות המותקנות.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">dpkg -l | wc -l</code>
+                    <span class="explain-rtl">ספירת מספר החבילות המותקנות.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">dpkg -l | grep mysql</code>
+                    <span class="explain-rtl">מחפש חבילות מותקנות שמכילות "mysql" בשם.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">dpkg -S ifconfig</code>
+                    <span class="explain-rtl">מציג לאיזו חבילה שייך הקובץ ifconfig.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">dpkg -c package.deb</code>
+                    <span class="explain-rtl">מציג את תוכן חבילת .deb (רשימת קבצים) בלי להתקין.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">rpm -i package.rpm</code>
+                    <span class="explain-rtl">מתקין חבילת .rpm.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">rpm -e packagename</code>
+                    <span class="explain-rtl">מסיר (uninstall) חבילה.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">rpm -q packagename</code>
+                    <span class="explain-rtl">בודק אם חבילה מותקנת ומציג את הגרסה.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">rpm -qa</code>
+                    <span class="explain-rtl">מציג את כל החבילות המותקנות.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">rpm -qa | wc -l</code>
+                    <span class="explain-rtl">ספירת מספר החבילות המותקנות.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">rpm -qa | grep mysql</code>
+                    <span class="explain-rtl">מחפש חבילות מותקנות שמכילות "mysql" בשם.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">rpm -qf /usr/sbin/ifconfig</code>
+                    <span class="explain-rtl">מציג לאיזו חבילה שייך הקובץ (query file).</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">rpm -ql net-tools</code>
+                    <span class="explain-rtl">מציג את רשימת הקבצים בחבילה net-tools (query list).</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="card" id="apt-ubuntu">
+            <h2 class="content-ltr">Using apt on Ubuntu</h2>
+            <p class="content-rtl">
+                <code dir="ltr">apt</code> (Advanced Package Tool) הוא מנהל החבילות ב-Ubuntu ו-Debian. 
+                מטפל בתלויות אוטומטית ומתחבר ל-repositories מרוחקים.
+            </p>
+            <div class="login-status-cmds">
+                <div class="cmd-row">
+                    <code class="cmd-ltr">apt update</code>
+                    <span class="explain-rtl">מרענן את רשימת החבילות הזמינות (מטא-דאטה).</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">apt upgrade</code>
+                    <span class="explain-rtl">מעדכן את כל החבילות המותקנות.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">apt install packagename</code>
+                    <span class="explain-rtl">מתקין חבילה. דוגמה: <code dir="ltr">apt install nginx</code></span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">apt remove packagename</code>
+                    <span class="explain-rtl">מסיר חבילה אך משאיר קבצי הגדרה.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">apt purge packagename</code>
+                    <span class="explain-rtl">מסיר חבילה יחד עם קבצי הגדרה.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">apt search keyword</code>
+                    <span class="explain-rtl">מחפש חבילות לפי מילת מפתח.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">apt show packagename</code>
+                    <span class="explain-rtl">מציג מידע מפורט על חבילה.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">apt list --installed</code>
+                    <span class="explain-rtl">מציג את כל החבילות המותקנות.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">apt autoremove</code>
+                    <span class="explain-rtl">מסיר חבילות תלויות שלא בשימוש.</span>
+                </div>
+            </div>
+            <div class="config-block">
+                <p class="content-ltr"><strong>Repositories:</strong> <code dir="ltr">/etc/apt/sources.list</code> – רשימת מקורות החבילות.</p>
+            </div>
+        </section>
+
+        <section class="card" id="yum-centos">
+            <h2 class="content-ltr">Using yum on CentOS</h2>
+            <p class="content-rtl">
+                <code dir="ltr">yum</code> (Yellowdog Updater Modified) הוא מנהל החבילות ב-CentOS ו-RHEL הישנים. 
+                ב-Fedora ו-RHEL 8+ הוחלף ב-<code dir="ltr">dnf</code>, אך הפקודות דומות.
+            </p>
+            <div class="login-status-cmds">
+                <div class="cmd-row">
+                    <code class="cmd-ltr">yum update</code>
+                    <span class="explain-rtl">מעדכן את כל החבילות (משלב refresh והתקנה).</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">yum install packagename</code>
+                    <span class="explain-rtl">מתקין חבילה. דוגמה: <code dir="ltr">yum install httpd</code></span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">yum remove packagename</code>
+                    <span class="explain-rtl">מסיר חבילה.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">yum search keyword</code>
+                    <span class="explain-rtl">מחפש חבילות לפי מילת מפתח.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">yum info packagename</code>
+                    <span class="explain-rtl">מציג מידע מפורט על חבילה.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">yum list installed</code>
+                    <span class="explain-rtl">מציג את כל החבילות המותקנות.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">yum repolist</code>
+                    <span class="explain-rtl">מציג את ה-repositories הפעילים.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">dnf install packagename</code>
+                    <span class="explain-rtl">גרסה מודרנית – dnf (Fedora, RHEL 8+).</span>
+                </div>
+            </div>
+            <div class="config-block">
+                <p class="content-ltr"><strong>Repositories:</strong> <code dir="ltr">/etc/yum.repos.d/</code> – קבצי .repo מגדירים את המקורות.</p>
+            </div>
+        </section>
+
+        <section class="card highlight" id="summary">
+            <h2 class="content-rtl">סיכום בעברית עם דוגמאות</h2>
+            <div class="content-rtl">
+                <p><strong>חבילות ב-Linux:</strong> Debian/Ubuntu משתמשים ב-.deb ו-apt; CentOS/RHEL משתמשים ב-.rpm ו-yum/dnf.</p>
+                <p><strong>apt (Ubuntu):</strong></p>
+                <ul style="list-style: none; padding: 0;">
+                    <li><code dir="ltr" class="cmd-ltr">apt update</code> – רענון רשימת חבילות</li>
+                    <li><code dir="ltr" class="cmd-ltr">apt install nginx</code> – התקנת nginx</li>
+                    <li><code dir="ltr" class="cmd-ltr">apt remove nginx</code> – הסרת חבילה</li>
+                    <li><code dir="ltr" class="cmd-ltr">apt search vim</code> – חיפוש חבילות</li>
+                </ul>
+                <p><strong>yum (CentOS):</strong></p>
+                <ul style="list-style: none; padding: 0;">
+                    <li><code dir="ltr" class="cmd-ltr">yum install httpd</code> – התקנת Apache</li>
+                    <li><code dir="ltr" class="cmd-ltr">yum update</code> – עדכון כל החבילות</li>
+                    <li><code dir="ltr" class="cmd-ltr">yum remove httpd</code> – הסרת חבילה</li>
+                    <li><code dir="ltr" class="cmd-ltr">yum info nginx</code> – מידע על חבילה</li>
+                </ul>
+                <p><strong>טיפ:</strong> תמיד להריץ <code dir="ltr">apt update</code> לפני <code dir="ltr">apt install</code>; ב-yum הפקודה <code dir="ltr">update</code> מטפלת בזה אוטומטית.</p>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>Package – ניהול חבילות ב-Linux</p>
+    </footer>
+
+    <script src="js/script.js"></script>
+</body>
+</html>
