@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>9: DNS management</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .content-ltr { direction: ltr; text-align: left; }
+        .content-rtl { direction: rtl; text-align: right; }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>9: DNS management</h1>
+        <p class="subtitle">ניהול DNS ב-Linux</p>
+        <nav class="header-links">
+            <a href="index.html" class="link-btn">Return to Home</a>
+        </nav>
+    </header>
+
+    <main>
+        <nav class="toc card">
+            <h2 class="content-rtl">תוכן העניינים</h2>
+            <ul class="content-rtl">
+                <li><a href="#what-is-dns">What is DNS</a></li>
+                <li><a href="#dns-client">Configuring a DNS Client</a></li>
+                <li><a href="#nslookup">Using the nslookup Command</a></li>
+                <li><a href="#dig-tools">Using the dig Command and Other Tools</a></li>
+                <li><a href="#dns-server">Administering a DNS Server</a></li>
+                <li><a href="#dns-copies">Creating DNS Server Copies</a></li>
+                <li><a href="#summary">Summary and Practice in Hebrew with Examples</a></li>
+            </ul>
+        </nav>
+
+        <section class="card" id="what-is-dns">
+            <h2 class="content-ltr">What is DNS</h2>
+            <p class="content-rtl">
+                DNS (Domain Name System) הוא מערכת שמתרגמת שמות דומיין (כמו www.google.com) לכתובות IP (כמו 142.250.185.46). 
+                ללא DNS היינו צריכים לזכור כתובות IP לכל אתר.
+            </p>
+            <p class="content-rtl">
+                DNS פועל בהיררכיה: root servers → TLD (.com, .org) → authoritative servers לדומיין. 
+                רשומות נפוצות: <strong>A</strong> (שם→IP), <strong>AAAA</strong> (IPv6), <strong>MX</strong> (מייל), <strong>CNAME</strong> (כינוי), <strong>NS</strong> (שרת DNS).
+            </p>
+            <div class="login-status-cmds">
+                <div class="cmd-row">
+                    <code class="cmd-ltr">A record</code>
+                    <span class="explain-rtl">מזהה host לשם → כתובת IPv4.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">MX record</code>
+                    <span class="explain-rtl">שרתי דוא"ל לדומיין.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">CNAME</code>
+                    <span class="explain-rtl">כינוי (alias) – מצביע לשם אחר.</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="card" id="dns-client">
+            <h2 class="content-ltr">Configuring a DNS Client</h2>
+            <p class="content-rtl">
+                לקוח DNS – המכונה שואלת שרתי DNS לתרגום שמות. ההגדרות נמצאות ב-<code dir="ltr">/etc/resolv.conf</code> 
+                או נשלטות על ידי NetworkManager/systemd-resolved.
+            </p>
+            <div class="login-status-cmds">
+                <div class="cmd-row">
+                    <code class="cmd-ltr">/etc/resolv.conf</code>
+                    <span class="explain-rtl">קובץ הגדרות DNS – nameserver 8.8.8.8.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">nameserver 8.8.8.8</code>
+                    <span class="explain-rtl">שורת resolv.conf – מגדירה שרת DNS ראשי.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">nameserver 1.1.1.1</code>
+                    <span class="explain-rtl">Cloudflare DNS כחלופה.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">/etc/systemd/resolved.conf</code>
+                    <span class="explain-rtl">הגדרות systemd-resolved (חלק מההפצות).</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">resolvectl status</code>
+                    <span class="explain-rtl">מציג את הגדרות ה-DNS הנוכחיות.</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="card" id="nslookup">
+            <h2 class="content-ltr">Using the nslookup Command</h2>
+            <p class="content-rtl">
+                <code dir="ltr">nslookup</code> – כלי שאילתות DNS אינטראקטיבי או משורת פקודה. בודק תרגום שם→IP ולהיפך.
+            </p>
+            <div class="login-status-cmds">
+                <div class="cmd-row">
+                    <code class="cmd-ltr">nslookup google.com</code>
+                    <span class="explain-rtl">שואל כתובת IP עבור google.com.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">nslookup 8.8.8.8</code>
+                    <span class="explain-rtl">שואל Reverse DNS – שם עבור כתובת IP.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">nslookup -type=MX example.com</code>
+                    <span class="explain-rtl">שואל רשומות MX (שרתי מייל).</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">nslookup google.com 8.8.8.8</code>
+                    <span class="explain-rtl">שואל ישירות משרת DNS ספציפי.</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="card" id="dig-tools">
+            <h2 class="content-ltr">Using the dig Command and Other Tools</h2>
+            <p class="content-rtl">
+                <code dir="ltr">dig</code> (Domain Information Groper) – כלי מתקדם לשאילתות DNS. מחזיר מידע מפורט. 
+                <code dir="ltr">host</code> – פשוט יותר. <code dir="ltr">whois</code> – מידע על רישום דומיין.
+            </p>
+            <div class="login-status-cmds">
+                <div class="cmd-row">
+                    <code class="cmd-ltr">dig google.com</code>
+                    <span class="explain-rtl">שאילתת A – מציג תשובה מפורטת כולל TTL, authority.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">dig google.com +short</code>
+                    <span class="explain-rtl">תשובה קצרה – רק כתובות IP.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">dig MX example.com</code>
+                    <span class="explain-rtl">שאילתת MX.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">dig @8.8.8.8 google.com</code>
+                    <span class="explain-rtl">שולח שאילה ישירות לשרת 8.8.8.8.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">host google.com</code>
+                    <span class="explain-rtl">פקודה פשוטה – שם→IP.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">whois example.com</code>
+                    <span class="explain-rtl">מידע על רישום הדומיין.</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="card" id="dns-server">
+            <h2 class="content-ltr">Administering a DNS Server</h2>
+            <p class="content-rtl">
+                שרת DNS – BIND (named) הוא הנפוץ ב-Linux. מנהל zones, רשומות, ו-caching. 
+                קבצי הגדרה: <code dir="ltr">/etc/bind/named.conf</code> (Debian), <code dir="ltr">/etc/named.conf</code> (RHEL).
+            </p>
+            <div class="login-status-cmds">
+                <div class="cmd-row">
+                    <code class="cmd-ltr">named</code>
+                    <span class="explain-rtl">תהליך BIND – שרת DNS.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">systemctl status named</code>
+                    <span class="explain-rtl">בודק סטטוס שרת BIND.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">/etc/bind/named.conf.local</code>
+                    <span class="explain-rtl">הגדרות zones מקומיות (Debian).</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">/var/named/</code>
+                    <span class="explain-rtl">קבצי zone (רשומות A, MX, וכו') – RHEL.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">named-checkconf</code>
+                    <span class="explain-rtl">בודק תחביר קובץ named.conf.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">named-checkzone example.com /path/to/zone</code>
+                    <span class="explain-rtl">בודק תחביר קובץ zone.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">rndc reload</code>
+                    <span class="explain-rtl">טוען מחדש zones בלי לאתחל את named.</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="card" id="dns-copies">
+            <h2 class="content-ltr">Creating DNS Server Copies</h2>
+            <p class="content-rtl">
+                עותקי שרת DNS (replicas/secondaries) – להעברת עומס ו-availability. 
+                Primary שולח zone transfers ל-Secondaries. הגדרת <code dir="ltr">allow-transfer</code> ו-slave ב-named.conf.
+            </p>
+            <div class="login-status-cmds">
+                <div class="cmd-row">
+                    <code class="cmd-ltr">allow-transfer { 192.168.1.2; };</code>
+                    <span class="explain-rtl">ב-named.conf – מאפשר zone transfer ל-secondary.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">type slave;</code>
+                    <span class="explain-rtl">ב-zone block – secondary מקבל העתקה מ-primary.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">masters { 192.168.1.1; };</code>
+                    <span class="explain-rtl">מגדיר את כתובת ה-primary עבור secondary.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">notify yes;</code>
+                    <span class="explain-rtl">primary יודיע ל-secondaries על עדכונים.</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="card highlight" id="summary">
+            <h2 class="content-rtl">סיכום ותרגול בעברית עם דוגמאות</h2>
+            <div class="content-rtl">
+                <p><strong>DNS:</strong> מתרגם שמות דומיין לכתובות IP. רשומות A, MX, CNAME, NS.</p>
+                <p><strong>לקוח:</strong> /etc/resolv.conf, nameserver 8.8.8.8. resolvectl status.</p>
+                <p><strong>פקודות בדיקה:</strong></p>
+                <ul style="list-style: none; padding: 0;">
+                    <li><code dir="ltr" class="cmd-ltr">nslookup google.com</code> – שאילתת DNS</li>
+                    <li><code dir="ltr" class="cmd-ltr">dig google.com +short</code> – תשובה קצרה</li>
+                    <li><code dir="ltr" class="cmd-ltr">dig MX example.com</code> – רשומות MX</li>
+                </ul>
+                <p><strong>תרגיל 1 – בדיקת DNS:</strong></p>
+                <ul style="list-style: none; padding: 0;">
+                    <li><code dir="ltr" class="cmd-ltr">dig www.wikipedia.org +short</code></li>
+                    <li><code dir="ltr" class="cmd-ltr">nslookup -type=NS google.com</code></li>
+                </ul>
+                <p><strong>תרגיל 2 – שרת BIND:</strong></p>
+                <ul style="list-style: none; padding: 0;">
+                    <li><code dir="ltr" class="cmd-ltr">named-checkconf</code> – בדיקת config</li>
+                    <li><code dir="ltr" class="cmd-ltr">rndc reload</code> – רענון zones</li>
+                </ul>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>9: DNS management – ניהול DNS</p>
+    </footer>
+
+    <script src="js/script.js"></script>
+</body>
+</html>

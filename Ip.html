@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>8: IP network management</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .content-ltr { direction: ltr; text-align: left; }
+        .content-rtl { direction: rtl; text-align: right; }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>8: IP network management</h1>
+        <p class="subtitle">ניהול רשת IP ב-Linux</p>
+        <nav class="header-links">
+            <a href="index.html" class="link-btn">Return to Home</a>
+        </nav>
+    </header>
+
+    <main>
+        <nav class="toc card">
+            <h2 class="content-rtl">תוכן העניינים</h2>
+            <ul class="content-rtl">
+                <li><a href="#intro">Introduction to IP Networking</a></li>
+                <li><a href="#ip-config">IP Addressing and Configuration</a></li>
+                <li><a href="#interfaces">Network Interfaces</a></li>
+                <li><a href="#static-dhcp">Static vs Dynamic IP (DHCP)</a></li>
+                <li><a href="#routing">Routing and Connectivity</a></li>
+                <li><a href="#summary">Summary and Exercises in Hebrew with Examples</a></li>
+            </ul>
+        </nav>
+
+        <section class="card" id="intro">
+            <h2 class="content-ltr">Introduction to IP Networking</h2>
+            <p class="content-rtl">
+                רשת IP משתמשת בפרוטוקול TCP/IP לתקשורת בין מחשבים. כל מחשב מזוהה לפי כתובת IP ייחודית. 
+                IPv4 (32 bit, דוגמה: 192.168.1.10) ו-IPv6 (128 bit) – שתי גרסאות הנמצאות בשימוש.
+            </p>
+            <p class="content-rtl">
+                רכיבים עיקריים: <strong>IP address</strong> (מזהה המחשב), <strong>subnet mask</strong> (גודל הרשת), 
+                <strong>gateway</strong> (נתב יציאה), <strong>DNS</strong> (תרגום שמות לכתובות).
+            </p>
+            <div class="login-status-cmds">
+                <div class="cmd-row">
+                    <code class="cmd-ltr">192.168.1.0/24</code>
+                    <span class="explain-rtl">רשת מקומית – 24 bits לרשת, 256 כתובות.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">gateway</code>
+                    <span class="explain-rtl">נתב – מעביר חבילות לרשתות חיצוניות.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">DNS</code>
+                    <span class="explain-rtl">Domain Name System – תרגום שם לכתובת IP.</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="card" id="ip-config">
+            <h2 class="content-ltr">IP Addressing and Configuration</h2>
+            <p class="content-rtl">
+                הגדרת IP ב-Linux מתבצעת עם <code dir="ltr">ip</code> (מודרני) או <code dir="ltr">ifconfig</code> (ישן). 
+                קבצי הגדרה: <code dir="ltr">/etc/network/interfaces</code> (Debian) או <code dir="ltr">/etc/sysconfig/network-scripts/</code> (RHEL).
+            </p>
+            <div class="login-status-cmds">
+                <div class="cmd-row">
+                    <code class="cmd-ltr">ip addr show</code>
+                    <span class="explain-rtl">מציג את כל הממשקים והכתובות.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">ip addr add 192.168.1.10/24 dev eth0</code>
+                    <span class="explain-rtl">מוסיף כתובת IP לממשק (זמני).</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">ip link set eth0 up</code>
+                    <span class="explain-rtl">מפעיל ממשק רשת.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">ifconfig</code>
+                    <span class="explain-rtl">מציג ממשקים (פקודה ישנה, net-tools).</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="card" id="interfaces">
+            <h2 class="content-ltr">Network Interfaces</h2>
+            <p class="content-rtl">
+                ממשק רשת (network interface) – eth0, ens33, enp0s3 – מתאם הרשת. 
+                <code dir="ltr">ip link</code> מציג ומנהל ממשקים.
+            </p>
+            <div class="login-status-cmds">
+                <div class="cmd-row">
+                    <code class="cmd-ltr">ip link show</code>
+                    <span class="explain-rtl">מציג את כל ממשקי הרשת.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">ip link set eth0 down</code>
+                    <span class="explain-rtl">משבית ממשק.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">ethtool eth0</code>
+                    <span class="explain-rtl">מידע על ממשק (מהירות, קישור).</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">/sys/class/net/</code>
+                    <span class="explain-rtl">מידע על ממשקים ב-sysfs.</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="card" id="static-dhcp">
+            <h2 class="content-ltr">Static vs Dynamic IP (DHCP)</h2>
+            <p class="content-rtl">
+                <strong>Static IP</strong> – כתובת קבועה, מוגדרת ידנית. מתאים לשרתים. 
+                <strong>Dynamic IP (DHCP)</strong> – הכתובת מתקבלת אוטומטית משרת DHCP.
+            </p>
+            <div class="login-status-cmds">
+                <div class="cmd-row">
+                    <code class="cmd-ltr">dhclient eth0</code>
+                    <span class="explain-rtl">מבקש כתובת IP משרת DHCP.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">nmcli device status</code>
+                    <span class="explain-rtl">מציג סטטוס (עם NetworkManager).</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">nmcli connection add type ethernet con-name mynet ifname eth0 ipv4.addresses 192.168.1.10/24 ipv4.gateway 192.168.1.1</code>
+                    <span class="explain-rtl">יצירת חיבור סטטי עם NetworkManager.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">/etc/resolv.conf</code>
+                    <span class="explain-rtl">הגדרות DNS (nameservers).</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="card" id="routing">
+            <h2 class="content-ltr">Routing and Connectivity</h2>
+            <p class="content-rtl">
+                בדיקת קישוריות ו-routing – <code dir="ltr">ping</code>, <code dir="ltr">traceroute</code>, <code dir="ltr">ip route</code>, <code dir="ltr">ss</code>, <code dir="ltr">netstat</code>.
+            </p>
+            <div class="login-status-cmds">
+                <div class="cmd-row">
+                    <code class="cmd-ltr">ping 8.8.8.8</code>
+                    <span class="explain-rtl">בודק קישוריות לכתובת (ICMP).</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">traceroute google.com</code>
+                    <span class="explain-rtl">מציג את מסלול החבילות ליעד.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">ip route show</code>
+                    <span class="explain-rtl">מציג טבלת routing.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">ip route add default via 192.168.1.1</code>
+                    <span class="explain-rtl">מוסיף gateway ברירת מחדל.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">ss -tuln</code>
+                    <span class="explain-rtl">מציג listening ports (TCP/UDP).</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">hostname -I</code>
+                    <span class="explain-rtl">מציג את כתובות ה-IP של המכונה.</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="card highlight" id="summary">
+            <h2 class="content-rtl">סיכום ותרגילים בעברית עם דוגמאות</h2>
+            <div class="content-rtl">
+                <p><strong>IP networking:</strong> כתובת IP, subnet, gateway, DNS. IPv4 ו-IPv6.</p>
+                <p><strong>הגדרה:</strong> ip addr, ip link. קבצים: /etc/network/interfaces או NetworkManager.</p>
+                <p><strong>פקודות עיקריות:</strong></p>
+                <ul style="list-style: none; padding: 0;">
+                    <li><code dir="ltr" class="cmd-ltr">ip addr show</code> – הצגת כתובות</li>
+                    <li><code dir="ltr" class="cmd-ltr">ping 8.8.8.8</code> – בדיקת קישוריות</li>
+                    <li><code dir="ltr" class="cmd-ltr">ip route show</code> – טבלת routing</li>
+                </ul>
+                <p><strong>תרגיל 1 – הגדרת IP זמנית:</strong></p>
+                <ul style="list-style: none; padding: 0;">
+                    <li><code dir="ltr" class="cmd-ltr">ip addr add 192.168.1.100/24 dev eth0</code></li>
+                    <li><code dir="ltr" class="cmd-ltr">ip route add default via 192.168.1.1</code></li>
+                </ul>
+                <p><strong>תרגיל 2 – בדיקת רשת:</strong></p>
+                <ul style="list-style: none; padding: 0;">
+                    <li><code dir="ltr" class="cmd-ltr">ping -c 3 192.168.1.1</code> – בדיקת gateway</li>
+                    <li><code dir="ltr" class="cmd-ltr">ss -tuln</code> – רשימת פורטים פתוחים</li>
+                </ul>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>8: IP network management – ניהול רשת IP</p>
+    </footer>
+
+    <script src="js/script.js"></script>
+</body>
+</html>

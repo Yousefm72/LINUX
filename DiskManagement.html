@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Disk Management</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .content-ltr { direction: ltr; text-align: left; }
+        .content-rtl { direction: rtl; text-align: right; }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Disk Management</h1>
+        <p class="subtitle">ניהול דיסקים ב-Linux</p>
+        <nav class="header-links">
+            <a href="index.html" class="link-btn">Return to Home</a>
+        </nav>
+    </header>
+
+    <main>
+        <nav class="toc card">
+            <h2 class="content-rtl">תוכן העניינים</h2>
+            <ul class="content-rtl">
+                <li><a href="#disks-partitions">Disks and Partitions</a></li>
+                <li><a href="#linux-disk">Linux Disk Management</a></li>
+                <li><a href="#summary">Summary and Practice in Hebrew with Examples</a></li>
+            </ul>
+        </nav>
+
+        <section class="card" id="disks-partitions">
+            <h2 class="content-ltr">Disks and Partitions</h2>
+            <p class="content-rtl">
+                דיסק (disk) הוא התקן אחסון פיזי – HDD או SSD. מחולק לחלקים (partitions) כדי לארגן מערכות קבצים, 
+                swap, או מערכות הפעלה מרובות. טבלת מחיצות (partition table) – MBR או GPT – מגדירה את המבנה.
+            </p>
+            <p class="content-rtl">
+                <strong>MBR</strong> – עד 4 partitions ראשיים (או 3 + extended עם logical). מוגבל ל-2TB. 
+                <strong>GPT</strong> – תומך במספר גדול של partitions ו-disks מעל 2TB.
+            </p>
+            <div class="login-status-cmds">
+                <div class="cmd-row">
+                    <code class="cmd-ltr">/dev/sda</code>
+                    <span class="explain-rtl">דיסק ראשון (SATA/SCSI). sdb, sdc – דיסקים נוספים.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">/dev/sda1</code>
+                    <span class="explain-rtl">מחיצה ראשונה על הדיסק הראשון.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">/dev/nvme0n1</code>
+                    <span class="explain-rtl">דיסק NVMe (SSD). nvme0n1p1 – מחיצה ראשונה.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">MBR / GPT</code>
+                    <span class="explain-rtl">טבלאות מחיצות – MBR (ישן) ו-GPT (מודרני, UEFI).</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="card" id="linux-disk">
+            <h2 class="content-ltr">Linux Disk Management</h2>
+            <p class="content-rtl">
+                ניהול דיסקים ב-Linux מתבצע עם <code dir="ltr">fdisk</code>, <code dir="ltr">parted</code>, <code dir="ltr">lsblk</code>, <code dir="ltr">mkfs</code>, 
+                <code dir="ltr">mount</code>, <code dir="ltr">df</code>, <code dir="ltr">du</code>, ו-<code dir="ltr">/etc/fstab</code>.
+            </p>
+            <div class="login-status-cmds">
+                <div class="cmd-row">
+                    <code class="cmd-ltr">lsblk</code>
+                    <span class="explain-rtl">מציג את כל הדיסקים והמחיצות במערכת.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">fdisk /dev/sda</code>
+                    <span class="explain-rtl">עורך מחיצות (אינטראקטיבי). n=חדש, d=מחק, w=שמור.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">parted /dev/sda</code>
+                    <span class="explain-rtl">עורך מחיצות – תומך ב-GPT ובגדלים מעל 2TB.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">mkfs.ext4 /dev/sda1</code>
+                    <span class="explain-rtl">יוצר מערכת קבצים ext4 על המחיצה.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">mkfs.xfs /dev/sda2</code>
+                    <span class="explain-rtl">יוצר מערכת קבצים XFS.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">mount /dev/sda1 /mnt</code>
+                    <span class="explain-rtl">מעמיד מחיצה בתיקיית mount.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">umount /mnt</code>
+                    <span class="explain-rtl">מנתק מחיצה מ-mount point.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">df -h</code>
+                    <span class="explain-rtl">מציג שימוש בדיסק במערכות הקבצים המאוישות.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">du -sh /path</code>
+                    <span class="explain-rtl">מציג גודל תיקייה (בפורמט קריא).</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">blkid</code>
+                    <span class="explain-rtl">מציג UUID ו-type של מחיצות.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">/etc/fstab</code>
+                    <span class="explain-rtl">קובץ הגדרות mount אוטומטי באתחול.</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="card highlight" id="summary">
+            <h2 class="content-rtl">סיכום ותרגול בעברית עם דוגמאות</h2>
+            <div class="content-rtl">
+                <p><strong>דיסקים ומחיצות:</strong> /dev/sda, /dev/sda1. MBR מוגבל ל-2TB; GPT מודרני יותר.</p>
+                <p><strong>פקודות עיקריות – תרגול:</strong></p>
+                <ul style="list-style: none; padding: 0;">
+                    <li><code dir="ltr" class="cmd-ltr">lsblk</code> – הצגת דיסקים ומחיצות</li>
+                    <li><code dir="ltr" class="cmd-ltr">fdisk /dev/sdb</code> – עריכת מחיצות על דיסק שני</li>
+                    <li><code dir="ltr" class="cmd-ltr">mkfs.ext4 /dev/sdb1</code> – יצירת מערכת קבצים</li>
+                    <li><code dir="ltr" class="cmd-ltr">mount /dev/sdb1 /mnt/data</code> – mount לתיקייה</li>
+                    <li><code dir="ltr" class="cmd-ltr">df -h</code> – בדיקת מקום פנוי</li>
+                    <li><code dir="ltr" class="cmd-ltr">du -sh /home</code> – גודל תיקיית home</li>
+                </ul>
+                <p><strong>תרגול:</strong> הוסף דיסק וירטואלי (או USB), צור מחיצה עם <code dir="ltr">fdisk</code>, צור ext4 עם <code dir="ltr">mkfs.ext4</code>, 
+                mount ל-<code dir="ltr">/mnt/mydisk</code>, הוסף שורה ל-<code dir="ltr">/etc/fstab</code> ל-mount קבוע.</p>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>Disk Management – ניהול דיסקים ב-Linux</p>
+    </footer>
+
+    <script src="js/script.js"></script>
+</body>
+</html>

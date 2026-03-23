@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>12: Samba Server and Connectivity with Windows Computers</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .content-ltr { direction: ltr; text-align: left; }
+        .content-rtl { direction: rtl; text-align: right; }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>12: Samba Server and Connectivity with Windows Computers (Self-Learning)</h1>
+        <p class="subtitle">שרת Samba וחיבוריות עם מחשבי Windows</p>
+        <nav class="header-links">
+            <a href="index.html" class="link-btn">Return to Home</a>
+        </nav>
+    </header>
+
+    <main>
+        <nav class="toc card">
+            <h2 class="content-rtl">תוכן העניינים</h2>
+            <ul class="content-rtl">
+                <li><a href="#samba-overview">Samba Service Overview</a></li>
+                <li><a href="#sssd">What is SSSD</a></li>
+                <li><a href="#ldap">LDAP Overview</a></li>
+                <li><a href="#ad">Connecting a Linux Server to Active Directory</a></li>
+                <li><a href="#summary">Summary and Practice in Hebrew with Examples</a></li>
+            </ul>
+        </nav>
+
+        <section class="card" id="samba-overview">
+            <h2 class="content-ltr">Samba Service Overview</h2>
+            <p class="content-rtl">
+                Samba מיישם את פרוטוקול SMB/CIFS – הפרוטוקול שמשתמשים Windows לשיתוף קבצים ולהדפות. 
+                מאפשר ל-Linux לשתף תיקיות ולהתחבר ל-Windows networks, לשרת כמשאב רשת ב-domain, ולהירשם ל-Active Directory.
+            </p>
+            <p class="content-rtl">
+                רכיבים עיקריים: <strong>smbd</strong> (שיתוף קבצים והדפות), <strong>nmbd</strong> (NetBIOS name resolution), 
+                <strong>winbindd</strong> (אימות מול Windows domain). קובץ ההגדרה: <code dir="ltr">/etc/samba/smb.conf</code>.
+            </p>
+            <div class="login-status-cmds">
+                <div class="cmd-row">
+                    <code class="cmd-ltr">smbd</code>
+                    <span class="explain-rtl">שירות שיתוף קבצים והדפות (SMB).</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">nmbd</code>
+                    <span class="explain-rtl">שירות NetBIOS – שמות מכונות ברשת Windows.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">/etc/samba/smb.conf</code>
+                    <span class="explain-rtl">קובץ ההגדרות הראשי של Samba.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">smbclient -L //server</code>
+                    <span class="explain-rtl">מציג shares זמינים על שרת Samba.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">testparm</code>
+                    <span class="explain-rtl">בודק תחביר smb.conf.</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="card" id="sssd">
+            <h2 class="content-ltr">What is SSSD</h2>
+            <p class="content-rtl">
+                SSSD (System Security Services Daemon) מספק גישה מרכזית לזהות ואימות – LDAP, Active Directory, Kerberos. 
+                מטפל ב-caching של credentials ומידע משתמשים/קבוצות, ומחליף את שילוב ה-ldap/nss/pam הישן.
+            </p>
+            <p class="content-rtl">
+                SSSD מאפשר ל-Linux להצטרף ל-domain, לאמת משתמשים מול AD, ולגשת למשאבים משותפים. 
+                קובץ ההגדרה: <code dir="ltr">/etc/sssd/sssd.conf</code>.
+            </p>
+            <div class="login-status-cmds">
+                <div class="cmd-row">
+                    <code class="cmd-ltr">sssd</code>
+                    <span class="explain-rtl">הדמון – מחבר ל-LDAP/AD ומגיש נתונים ל-NSS/PAM.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">/etc/sssd/sssd.conf</code>
+                    <span class="explain-rtl">קובץ ההגדרות – domain, ldap_uri, ad_server.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">realm join example.com</code>
+                    <span class="explain-rtl">מצרף את המכונה ל-Active Directory domain (עם realmd).</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">id user@domain</code>
+                    <span class="explain-rtl">בודק אם משתמש domain מזוהה (uid, gid, groups).</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="card" id="ldap">
+            <h2 class="content-ltr">LDAP Overview</h2>
+            <p class="content-rtl">
+                LDAP (Lightweight Directory Access Protocol) – פרוטוקול למאגרי מידע היררכיים (directory). 
+                משמש לאחסון משתמשים, קבוצות, מכשירים. Active Directory מבוסס על LDAP (עם הרחבות).
+            </p>
+            <p class="content-rtl">
+                מבנה: DN (Distinguished Name), OU (Organizational Unit), CN (Common Name). 
+                LDAP רצה על פורט 389 (לא מוצפן) או 636 (LDAPS). OpenLDAP – מימוש קוד פתוח.
+            </p>
+            <div class="login-status-cmds">
+                <div class="cmd-row">
+                    <code class="cmd-ltr">ldapsearch -x -b "dc=example,dc=com"</code>
+                    <span class="explain-rtl">שאילתת LDAP – מציג רשומות במאגר.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">ldapadd</code>
+                    <span class="explain-rtl">מוסיף רשומות ל-LDAP.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">port 389 / 636</code>
+                    <span class="explain-rtl">LDAP ו-LDAPS (מוצפן).</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">389-ds / slapd</code>
+                    <span class="explain-rtl">שרת OpenLDAP – 389 Directory Server או slapd.</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="card" id="ad">
+            <h2 class="content-ltr">Connecting a Linux Server to Active Directory</h2>
+            <p class="content-rtl">
+                חיבור Linux ל-Active Directory – המשתמשים יכולים להתחבר עם credentials של domain. 
+                כלים: <code dir="ltr">realmd</code> + <code dir="ltr">sssd</code>, או <code dir="ltr">winbind</code> (Samba) + Kerberos.
+            </p>
+            <div class="login-status-cmds">
+                <div class="cmd-row">
+                    <code class="cmd-ltr">realm discover example.com</code>
+                    <span class="explain-rtl">מגלה את ה-domain ומציג מידע על AD.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">realm join example.com -U admin</code>
+                    <span class="explain-rtl">מצרף את המכונה ל-domain. יוצר חשבון ב-AD.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">realm leave</code>
+                    <span class="explain-rtl">מנתק את המכונה מה-domain.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">kinit user@DOMAIN</code>
+                    <span class="explain-rtl">מקבל ticket Kerberos – אימות ל-domain.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">systemctl restart sssd</code>
+                    <span class="explain-rtl">מרענן SSSD אחרי שינויים.</span>
+                </div>
+            </div>
+            <div class="config-block">
+                <p class="content-ltr"><strong>דרישות:</strong> DNS מכוון ל-AD, שעון מסונכרן (NTP), connectivity ל-domain controller.</p>
+            </div>
+        </section>
+
+        <section class="card highlight" id="summary">
+            <h2 class="content-rtl">סיכום ותרגול בעברית עם דוגמאות</h2>
+            <div class="content-rtl">
+                <p><strong>Samba:</strong> שיתוף קבצים SMB/CIFS. smbd, nmbd. /etc/samba/smb.conf. testparm.</p>
+                <p><strong>SSSD:</strong> אימות מרכזי ל-LDAP/AD. /etc/sssd/sssd.conf. realm join.</p>
+                <p><strong>LDAP:</strong> פרוטוקול directory. ldapsearch, ldapadd. Active Directory מבוסס LDAP.</p>
+                <p><strong>חיבור ל-AD:</strong> realmd + sssd. realm join, kinit. DNS ו-NTP חייבים להיות נכונים.</p>
+                <p><strong>תרגיל 1 – Samba:</strong></p>
+                <ul style="list-style: none; padding: 0;">
+                    <li><code dir="ltr" class="cmd-ltr">testparm</code> – בדיקת smb.conf</li>
+                    <li><code dir="ltr" class="cmd-ltr">smbclient -L //localhost -U user</code> – רשימת shares</li>
+                </ul>
+                <p><strong>תרגיל 2 – Active Directory:</strong></p>
+                <ul style="list-style: none; padding: 0;">
+                    <li><code dir="ltr" class="cmd-ltr">realm discover ad.example.com</code></li>
+                    <li><code dir="ltr" class="cmd-ltr">realm join ad.example.com -U Administrator</code></li>
+                    <li><code dir="ltr" class="cmd-ltr">id user@ad.example.com</code> – בדיקת משתמש domain</li>
+                </ul>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>12: Samba Server and Connectivity with Windows Computers – לימוד עצמי</p>
+    </footer>
+
+    <script src="js/script.js"></script>
+</body>
+</html>

@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>7: File system management</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .content-ltr { direction: ltr; text-align: left; }
+        .content-rtl { direction: rtl; text-align: right; }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>7: File system management</h1>
+        <p class="subtitle">ניהול מערכות קבצים ב-Linux</p>
+        <nav class="header-links">
+            <a href="index.html" class="link-btn">Return to Home</a>
+        </nav>
+    </header>
+
+    <main>
+        <nav class="toc card">
+            <h2 class="content-rtl">תוכן העניינים</h2>
+            <ul class="content-rtl">
+                <li><a href="#intro">Introduction to File Systems</a></li>
+                <li><a href="#creating">Creating File Systems</a></li>
+                <li><a href="#partitions-swap">Creating Partitions and SWAP Files</a></li>
+                <li><a href="#mount-temp">Mounting File Systems – Temporarily</a></li>
+                <li><a href="#mount-perm">Mounting File Systems – Permanently</a></li>
+                <li><a href="#summary">Summary and Exercises in Hebrew with Examples</a></li>
+            </ul>
+        </nav>
+
+        <section class="card" id="intro">
+            <h2 class="content-ltr">Introduction to File Systems</h2>
+            <p class="content-rtl">
+                מערכת קבצים (file system) מגדירה איך נתונים מאוחסנים ומאורגנים על דיסק. 
+                היא מנהלת קבצים, תיקיות, הרשאות ומטא-דאטה (inodes, blocks).
+            </p>
+            <p class="content-rtl">
+                מערכות קבצים נפוצות ב-Linux: <strong>ext4</strong> (ברירת מחדל), <strong>XFS</strong> (לקבצים גדולים), 
+                <strong>btrfs</strong> (snapshots), <strong>FAT32</strong>/<strong>exFAT</strong> (התקנים ניידים).
+            </p>
+            <div class="login-status-cmds">
+                <div class="cmd-row">
+                    <code class="cmd-ltr">ext4</code>
+                    <span class="explain-rtl">מערכת קבצים ראשית ב-Linux. יציבה, journaling.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">XFS</code>
+                    <span class="explain-rtl">מתאימה לקבצים גדולים. הרחבה בלבד (אין הקטנה).</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">btrfs</code>
+                    <span class="explain-rtl">תמיכה ב-snapshots, RAID תוכנתי, checksums.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">inode</code>
+                    <span class="explain-rtl">מבנה מטא-דאטה לקבצים – הרשאות, גודל, מצביעים לבלוקים.</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="card" id="creating">
+            <h2 class="content-ltr">Creating File Systems</h2>
+            <p class="content-rtl">
+                יצירת מערכת קבצים על מחיצה או LV עם <code dir="ltr">mkfs</code> או הפקודות הספציפיות. 
+                <strong>אזהרה:</strong> פעולה זו מוחקת את כל הנתונים על ההתקן.
+            </p>
+            <div class="login-status-cmds">
+                <div class="cmd-row">
+                    <code class="cmd-ltr">mkfs.ext4 /dev/sda1</code>
+                    <span class="explain-rtl">יוצר מערכת קבצים ext4 על המחיצה.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">mkfs.xfs /dev/sda2</code>
+                    <span class="explain-rtl">יוצר מערכת קבצים XFS.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">mkfs -t ext4 /dev/sda1</code>
+                    <span class="explain-rtl">צורה חלופית – mkfs עם אופציה -t.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">mkfs.vfat /dev/sdb1</code>
+                    <span class="explain-rtl">יוצר FAT32 (להתקנים ניידים).</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="card" id="partitions-swap">
+            <h2 class="content-ltr">Creating Partitions and SWAP Files</h2>
+            <p class="content-rtl">
+                מחיצות נוצרות עם <code dir="ltr">fdisk</code> או <code dir="ltr">parted</code>. 
+                SWAP – זיכרון וירטואלי על דיסק – יכול להיות מחיצה ייעודית או קובץ swap.
+            </p>
+            <div class="login-status-cmds">
+                <div class="cmd-row">
+                    <code class="cmd-ltr">fdisk /dev/sdb</code>
+                    <span class="explain-rtl">עורך מחיצות – n (חדש), t (סוג), w (שמור).</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">parted /dev/sdb</code>
+                    <span class="explain-rtl">עורך מחיצות – תומך ב-GPT ובגדלים מעל 2TB.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">mkswap /dev/sdb2</code>
+                    <span class="explain-rtl">מגדיר מחיצה כ-swap.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">swapon /dev/sdb2</code>
+                    <span class="explain-rtl">מפעיל swap (טמפוררי).</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">dd if=/dev/zero of=/swapfile bs=1M count=1024</code>
+                    <span class="explain-rtl">יוצר קובץ swap בגודל 1GB.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">chmod 600 /swapfile && mkswap /swapfile</code>
+                    <span class="explain-rtl">הגדרת הרשאות ויצירת swap מקובץ.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">swapon /swapfile</code>
+                    <span class="explain-rtl">מפעיל swap מקובץ.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">swapoff /dev/sdb2</code>
+                    <span class="explain-rtl">מפסיק swap.</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="card" id="mount-temp">
+            <h2 class="content-ltr">Mounting File Systems – Temporarily</h2>
+            <p class="content-rtl">
+                mount זמני – מחלקת ה-mount נעלמת אחרי הפעלה מחדש. משתמשים ב-<code dir="ltr">mount</code> ו-<code dir="ltr">umount</code>.
+            </p>
+            <div class="login-status-cmds">
+                <div class="cmd-row">
+                    <code class="cmd-ltr">mount /dev/sda1 /mnt</code>
+                    <span class="explain-rtl">מעמיד מחיצה ב-/mnt.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">mount -t ext4 /dev/sda1 /mnt/data</code>
+                    <span class="explain-rtl">מעמיד עם סוג קבצים מפורש.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">mount -o ro /dev/sda1 /mnt</code>
+                    <span class="explain-rtl">מעמיד לקריאה בלבד (read-only).</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">umount /mnt</code>
+                    <span class="explain-rtl">מנתק מחיצה. או: <code dir="ltr">umount /dev/sda1</code></span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">mount</code>
+                    <span class="explain-rtl">מציג את כל ה-mounts הפעילים.</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="card" id="mount-perm">
+            <h2 class="content-ltr">Mounting File Systems – Permanently</h2>
+            <p class="content-rtl">
+                mount קבוע – רשומה ב-<code dir="ltr">/etc/fstab</code>. המערכת מעמידה אוטומטית באתחול. 
+                כל שורה: <code dir="ltr">device mount_point fstype options dump fsck</code>
+            </p>
+            <div class="config-block">
+                <p class="content-ltr"><strong>Example /etc/fstab entry:</strong></p>
+                <pre class="content-ltr" dir="ltr" style="direction:ltr; text-align:left; background:rgba(0,0,0,0.2); padding:1rem; border-radius:8px; overflow-x:auto;"><code>UUID=xxx  /mnt/data  ext4  defaults  0  2</code></pre>
+            </div>
+            <div class="login-status-cmds">
+                <div class="cmd-row">
+                    <code class="cmd-ltr">/etc/fstab</code>
+                    <span class="explain-rtl">קובץ הגדרות mount אוטומטי.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">blkid</code>
+                    <span class="explain-rtl">מציג UUID – עדיף ל-fstab מאשר /dev/sda1 (יציב יותר).</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">mount -a</code>
+                    <span class="explain-rtl">מעמיד את כל השורות מ-fstab שלא מאוישות.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">swap /swapfile none swap sw 0 0</code>
+                    <span class="explain-rtl">שורת fstab ל-swap מקובץ.</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="card highlight" id="summary">
+            <h2 class="content-rtl">סיכום ותרגילים בעברית עם דוגמאות</h2>
+            <div class="content-rtl">
+                <p><strong>מערכות קבצים:</strong> ext4, XFS, btrfs. יצירה עם mkfs.ext4, mkfs.xfs.</p>
+                <p><strong>מחיצות ו-swap:</strong> fdisk/parted ליצירת מחיצות. mkswap ו-swapon ל-swap.</p>
+                <p><strong>Mount:</strong> זמני – mount/umount. קבוע – /etc/fstab עם UUID.</p>
+                <p><strong>תרגיל 1 – מחיצה וקובץ swap:</strong></p>
+                <ul style="list-style: none; padding: 0;">
+                    <li><code dir="ltr" class="cmd-ltr">dd if=/dev/zero of=/swapfile bs=1M count=512</code> – יצירת קובץ 512MB</li>
+                    <li><code dir="ltr" class="cmd-ltr">chmod 600 /swapfile && mkswap /swapfile && swapon /swapfile</code> – הפעלת swap</li>
+                </ul>
+                <p><strong>תרגיל 2 – mount קבוע:</strong></p>
+                <ul style="list-style: none; padding: 0;">
+                    <li><code dir="ltr" class="cmd-ltr">blkid /dev/sdb1</code> – קבלת UUID</li>
+                    <li>הוספת שורה ל-fstab: <code dir="ltr" class="cmd-ltr">UUID=xxx /mnt/backup ext4 defaults 0 2</code></li>
+                    <li><code dir="ltr" class="cmd-ltr">mount -a</code> – בדיקה</li>
+                </ul>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>7: File system management – ניהול מערכות קבצים</p>
+    </footer>
+
+    <script src="js/script.js"></script>
+</body>
+</html>

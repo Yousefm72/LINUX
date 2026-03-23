@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Storage Volume Management</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .content-ltr { direction: ltr; text-align: left; }
+        .content-rtl { direction: rtl; text-align: right; }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Storage Volume Management</h1>
+        <p class="subtitle">ניהול נפחי אחסון – RAID ו-LVM</p>
+        <nav class="header-links">
+            <a href="index.html" class="link-btn">Return to Home</a>
+        </nav>
+    </header>
+
+    <main>
+        <nav class="toc card">
+            <h2 class="content-rtl">תוכן העניינים</h2>
+            <ul class="content-rtl">
+                <li><a href="#raid">Introduction to RAID</a></li>
+                <li><a href="#lvm-topology">LVM Topology</a></li>
+                <li><a href="#pv">Managing Physical Volumes</a></li>
+                <li><a href="#vg">Managing Volume Groups</a></li>
+                <li><a href="#lv">Managing Logical Volumes</a></li>
+                <li><a href="#resize">Resizing Logical Volumes</a></li>
+                <li><a href="#summary">Summary and Exercises in Hebrew with Examples</a></li>
+            </ul>
+        </nav>
+
+        <section class="card" id="raid">
+            <h2 class="content-ltr">Introduction to RAID</h2>
+            <p class="content-rtl">
+                RAID (Redundant Array of Independent Disks) מחבר מספר דיסקים ליחידה לוגית אחת – לאבטחת נתונים (redundancy) 
+                או לשיפור ביצועים. Linux תומך ב-RAID תוכנתי (mdadm) וב-RAID חומרתי.
+            </p>
+            <div class="login-status-cmds">
+                <div class="cmd-row">
+                    <code class="cmd-ltr">RAID 0</code>
+                    <span class="explain-rtl">Striping – פיזור נתונים על דיסקים. ביצועים גבוהים, ללא redundancy.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">RAID 1</code>
+                    <span class="explain-rtl">Mirroring – שכפול נתונים. שרידות – דיסק אחד יכול להיכשל.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">RAID 5</code>
+                    <span class="explain-rtl">Striping + parity. דורש 3+ דיסקים. שרידות דיסק אחד.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">RAID 6</code>
+                    <span class="explain-rtl">כמו RAID 5 עם parity כפול. שרידות שני דיסקים.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">mdadm</code>
+                    <span class="explain-rtl">כלי ליצירת וניהול RAID תוכנתי ב-Linux.</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="card" id="lvm-topology">
+            <h2 class="content-ltr">LVM Topology</h2>
+            <p class="content-rtl">
+                LVM (Logical Volume Manager) מציג שכבת הפשטה מעל הדיסקים. המבנה: 
+                <strong>Physical Volumes (PV)</strong> ← <strong>Volume Groups (VG)</strong> ← <strong>Logical Volumes (LV)</strong>.
+            </p>
+            <p class="content-rtl">
+                דיסקים או מחיצות הופכים ל-PV; PVs מתאחדים ל-VG; מתוך ה-VG יוצרים LVs – שהם היחידות שמעלים כ-filesystem.
+            </p>
+            <div class="login-status-cmds">
+                <div class="cmd-row">
+                    <code class="cmd-ltr">PV (Physical Volume)</code>
+                    <span class="explain-rtl">דיסק או מחיצה ששויכו ל-LVM.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">VG (Volume Group)</code>
+                    <span class="explain-rtl">מאגר נפח – מאגד PVs לאגם משותף.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">LV (Logical Volume)</code>
+                    <span class="explain-rtl">נפח לוגי – חותך מתוך ה-VG, כמו partition גמיש.</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="card" id="pv">
+            <h2 class="content-ltr">Managing Physical Volumes</h2>
+            <p class="content-rtl">
+                ניהול Physical Volumes – יצירה מ-partition או מדיסק ישיר, הצגה, הסרה.
+            </p>
+            <div class="login-status-cmds">
+                <div class="cmd-row">
+                    <code class="cmd-ltr">pvcreate /dev/sdb1</code>
+                    <span class="explain-rtl">הופך מחיצה ל-Physical Volume.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">pvcreate /dev/sdc</code>
+                    <span class="explain-rtl">הופך דיסק שלם ל-PV (ללא partition).</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">pvdisplay</code>
+                    <span class="explain-rtl">מציג פרטי PVs.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">pvscan</code>
+                    <span class="explain-rtl">סורק ומציג את כל ה-PVs במערכת.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">pvremove /dev/sdb1</code>
+                    <span class="explain-rtl">מסיר PV (חייב להיות מחוץ ל-VG).</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="card" id="vg">
+            <h2 class="content-ltr">Managing Volume Groups</h2>
+            <p class="content-rtl">
+                ניהול Volume Groups – יצירה מ-PVs, הרחבה, הקטנה, הצגה.
+            </p>
+            <div class="login-status-cmds">
+                <div class="cmd-row">
+                    <code class="cmd-ltr">vgcreate vg_data /dev/sdb1 /dev/sdc1</code>
+                    <span class="explain-rtl">יוצר VG בשם vg_data מ־2 PVs.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">vgextend vg_data /dev/sdd1</code>
+                    <span class="explain-rtl">מוסיף PV ל-VG קיים.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">vgreduce vg_data /dev/sdd1</code>
+                    <span class="explain-rtl">מסיר PV מ-VG (חייב להיות ריק).</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">vgdisplay</code>
+                    <span class="explain-rtl">מציג פרטי VGs.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">vgscan</code>
+                    <span class="explain-rtl">סורק ומציג את כל ה-VGs.</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="card" id="lv">
+            <h2 class="content-ltr">Managing Logical Volumes</h2>
+            <p class="content-rtl">
+                ניהול Logical Volumes – יצירה, format, mount, הסרה.
+            </p>
+            <div class="login-status-cmds">
+                <div class="cmd-row">
+                    <code class="cmd-ltr">lvcreate -L 10G -n lv_data vg_data</code>
+                    <span class="explain-rtl">יוצר LV בגודל 10GB בשם lv_data מתוך vg_data.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">lvcreate -l 100%FREE -n lv_home vg_data</code>
+                    <span class="explain-rtl">יוצר LV שמשתמש בכל המקום הפנוי ב-VG.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">lvdisplay</code>
+                    <span class="explain-rtl">מציג פרטי LVs.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">mkfs.ext4 /dev/vg_data/lv_data</code>
+                    <span class="explain-rtl">יוצר מערכת קבצים על ה-LV.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">mount /dev/vg_data/lv_data /mnt/data</code>
+                    <span class="explain-rtl">מעמיד את ה-LV.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">lvremove /dev/vg_data/lv_data</code>
+                    <span class="explain-rtl">מוחק LV (חייב להיות unmount ומוכן).</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="card" id="resize">
+            <h2 class="content-ltr">Resizing Logical Volumes</h2>
+            <p class="content-rtl">
+                שינוי גודל LVs – הרחבה או הקטנה. הרחבה בדרך כלל online; הקטנה דורשת unmount ולעתים resize של filesystem.
+            </p>
+            <div class="login-status-cmds">
+                <div class="cmd-row">
+                    <code class="cmd-ltr">lvextend -L +5G /dev/vg_data/lv_data</code>
+                    <span class="explain-rtl">מרחיב LV ב־5GB.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">lvextend -l +100%FREE /dev/vg_data/lv_data</code>
+                    <span class="explain-rtl">מרחיב LV לכל המקום הפנוי ב-VG.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">resize2fs /dev/vg_data/lv_data</code>
+                    <span class="explain-rtl">מרחיב את ext4 לאחר lvextend (כדי לנצל את המקום).</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">lvreduce -L 5G /dev/vg_data/lv_data</code>
+                    <span class="explain-rtl">מקטין LV ל־5GB. קודם resize2fs לקטן, אחר כך lvreduce.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">xfs_growfs /mount/point</code>
+                    <span class="explain-rtl">מרחיב XFS (רק הרחבה; XFS לא תומך בהקטנה).</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="card highlight" id="summary">
+            <h2 class="content-rtl">סיכום ותרגילים בעברית עם דוגמאות</h2>
+            <div class="content-rtl">
+                <p><strong>RAID:</strong> RAID 0 (striping), RAID 1 (mirror), RAID 5/6 (parity). mdadm לניהול.</p>
+                <p><strong>LVM:</strong> PV → VG → LV. גמישות בשינוי גודל בלי partition חדש.</p>
+                <p><strong>תרגיל 1 – יצירת LVM:</strong></p>
+                <ul style="list-style: none; padding: 0;">
+                    <li><code dir="ltr" class="cmd-ltr">pvcreate /dev/sdb1</code> – הפיכה ל-PV</li>
+                    <li><code dir="ltr" class="cmd-ltr">vgcreate vg1 /dev/sdb1</code> – יצירת VG</li>
+                    <li><code dir="ltr" class="cmd-ltr">lvcreate -L 5G -n lv1 vg1</code> – יצירת LV</li>
+                    <li><code dir="ltr" class="cmd-ltr">mkfs.ext4 /dev/vg1/lv1 && mount /dev/vg1/lv1 /mnt</code> – format ו-mount</li>
+                </ul>
+                <p><strong>תרגיל 2 – הרחבת LV:</strong></p>
+                <ul style="list-style: none; padding: 0;">
+                    <li><code dir="ltr" class="cmd-ltr">lvextend -L +2G /dev/vg1/lv1</code> – הרחבת LV</li>
+                    <li><code dir="ltr" class="cmd-ltr">resize2fs /dev/vg1/lv1</code> – הרחבת ext4</li>
+                </ul>
+                <p><strong>טיפ:</strong> הקטנת LV – קודם <code dir="ltr">resize2fs</code> לגודל הקטן יותר (עם unmount), ואז <code dir="ltr">lvreduce</code>.</p>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>Storage Volume Management – RAID ו-LVM</p>
+    </footer>
+
+    <script src="js/script.js"></script>
+</body>
+</html>

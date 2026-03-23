@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>10: Network File System - NFS</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .content-ltr { direction: ltr; text-align: left; }
+        .content-rtl { direction: rtl; text-align: right; }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>10: Network File System - NFS</h1>
+        <p class="subtitle">מערכת קבצים ברשת – NFS</p>
+        <nav class="header-links">
+            <a href="index.html" class="link-btn">Return to Home</a>
+        </nav>
+    </header>
+
+    <main>
+        <nav class="toc card">
+            <h2 class="content-rtl">תוכן העניינים</h2>
+            <ul class="content-rtl">
+                <li><a href="#principles">NFS Principles</a></li>
+                <li><a href="#versions">NFS Versions</a></li>
+                <li><a href="#server">NFS Server Administration</a></li>
+                <li><a href="#client">NFS Client-Side Administration</a></li>
+                <li><a href="#autofs">Using AutoFS</a></li>
+                <li><a href="#summary">Summary and Exercises in Hebrew with Examples</a></li>
+            </ul>
+        </nav>
+
+        <section class="card" id="principles">
+            <h2 class="content-ltr">NFS Principles</h2>
+            <p class="content-rtl">
+                NFS (Network File System) מאפשר שיתוף תיקיות בין מחשבים ברשת – שרת מעמיד (export) תיקיות, 
+                ולקוחות מעמידים אותן כ-mount point מקומי. הגישה שקופה – המשתמש מרגיש כאילו הקבצים מקומיים.
+            </p>
+            <p class="content-rtl">
+                NFS משתמש ב-RPC (Remote Procedure Call). השרת רץ <code dir="ltr">nfsd</code>; הלקוח משתמש ב-<code dir="ltr">mount.nfs</code>. 
+                <code dir="ltr">/etc/exports</code> מגדיר אילו תיקיות משותפות ולמי.
+            </p>
+            <div class="login-status-cmds">
+                <div class="cmd-row">
+                    <code class="cmd-ltr">export</code>
+                    <span class="explain-rtl">הפעלת שיתוף תיקייה מהשרת לרשת.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">RPC</code>
+                    <span class="explain-rtl">Remote Procedure Call – פרוטוקול התקשורת של NFS.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">/etc/exports</code>
+                    <span class="explain-rtl">קובץ ההגדרות – תיקיות משותפות ורשימת clients מורשים.</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="card" id="versions">
+            <h2 class="content-ltr">NFS Versions</h2>
+            <p class="content-rtl">
+                NFS v2 (ישן), NFS v3 (נפוץ), NFS v4 (מודרני, ברירת מחדל). 
+                NFSv4 עובד על פורט 2049 בלבד, תומך ב-firewall, ונקודות mount מרובות (pseudo-filesystem).
+            </p>
+            <div class="login-status-cmds">
+                <div class="cmd-row">
+                    <code class="cmd-ltr">NFSv3</code>
+                    <span class="explain-rtl">נתמך בכל מקום. UDP/TCP. stateless.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">NFSv4</code>
+                    <span class="explain-rtl">פורט 2049, stateful, אבטחה משופרת, ACLs.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">port 2049</code>
+                    <span class="explain-rtl">פורט NFSv4 – פשוט יותר ל-firewall מ-NFSv3.</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="card" id="server">
+            <h2 class="content-ltr">NFS Server Administration</h2>
+            <p class="content-rtl">
+                ניהול שרת NFS – התקנת חבילות, עריכת <code dir="ltr">/etc/exports</code>, הפעלת שירותים. 
+                Debian: <code dir="ltr">nfs-kernel-server</code>; RHEL: <code dir="ltr">nfs-utils</code>.
+            </p>
+            <div class="config-block">
+                <p class="content-ltr"><strong>Example /etc/exports:</strong></p>
+                <pre class="content-ltr" dir="ltr" style="direction:ltr; text-align:left; background:rgba(0,0,0,0.2); padding:1rem; border-radius:8px; overflow-x:auto;"><code>/export/shared  192.168.1.0/24(ro,sync)
+/home/data      192.168.1.10(rw,sync,no_subtree_check)</code></pre>
+            </div>
+            <div class="login-status-cmds">
+                <div class="cmd-row">
+                    <code class="cmd-ltr">exportfs -a</code>
+                    <span class="explain-rtl">מייצא את כל התיקיות מ-exports.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">exportfs -ra</code>
+                    <span class="explain-rtl">טוען מחדש exports (re-export) אחרי שינוי בקובץ.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">exportfs -v</code>
+                    <span class="explain-rtl">מציג את ה-exports הפעילים.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">showmount -e server_ip</code>
+                    <span class="explain-rtl">מציג תיקיות שמוצאות משרת NFS.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">systemctl start nfs-server</code>
+                    <span class="explain-rtl">מפעיל שרת NFS (systemd).</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">ro / rw</code>
+                    <span class="explain-rtl">read-only או read-write ב-exports.</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="card" id="client">
+            <h2 class="content-ltr">NFS Client-Side Administration</h2>
+            <p class="content-rtl">
+                צד הלקוח – התקנת <code dir="ltr">nfs-common</code> (Debian) או <code dir="ltr">nfs-utils</code> (RHEL), 
+                mount של תיקיות משותפות מהשרת.
+            </p>
+            <div class="login-status-cmds">
+                <div class="cmd-row">
+                    <code class="cmd-ltr">showmount -e 192.168.1.1</code>
+                    <span class="explain-rtl">מציג exports זמינים מהשרת.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">mount -t nfs 192.168.1.1:/export/shared /mnt/nfs</code>
+                    <span class="explain-rtl">מעמיד NFS share מקומית (זמני).</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">mount 192.168.1.1:/home/data /mnt/data</code>
+                    <span class="explain-rtl">ב-NFSv4 -t nfs אופציונלי.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">umount /mnt/nfs</code>
+                    <span class="explain-rtl">מנתק mount. אם תפוס: umount -l (lazy).</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">/etc/fstab: server:/export  /mnt  nfs  defaults  0  0</code>
+                    <span class="explain-rtl">mount קבוע באתחול.</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="card" id="autofs">
+            <h2 class="content-ltr">Using AutoFS</h2>
+            <p class="content-rtl">
+                AutoFS מעמיד NFS (או התקנים אחרים) אוטומטית רק כשנכנסים לתיקייה – חוסך זמן אתחול 
+                ומונע בעיות כשהשרת לא זמין. מוגדר ב-<code dir="ltr">/etc/auto.master</code> ו-<code dir="ltr">/etc/auto.nfs</code>.
+            </p>
+            <div class="login-status-cmds">
+                <div class="cmd-row">
+                    <code class="cmd-ltr">autofs</code>
+                    <span class="explain-rtl">שירות – mount on-demand.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">/etc/auto.master</code>
+                    <span class="explain-rtl">מגדיר mount points ו-maps.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">/etc/auto.nfs</code>
+                    <span class="explain-rtl">מפת NFS – שרת:path ל-mount.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">/+ auto.nfs</code>
+                    <span class="explain-rtl">שורה ב-auto.master – /net או /mnt/autofs.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">systemctl enable --now autofs</code>
+                    <span class="explain-rtl">מפעיל AutoFS באתחול.</span>
+                </div>
+            </div>
+            <div class="config-block">
+                <p class="content-ltr"><strong>Example /etc/auto.nfs:</strong></p>
+                <pre class="content-ltr" dir="ltr" style="direction:ltr; text-align:left; background:rgba(0,0,0,0.2); padding:1rem; border-radius:8px; overflow-x:auto;"><code>data  -rw,bg  192.168.1.1:/export/shared</code></pre>
+            </div>
+        </section>
+
+        <section class="card highlight" id="summary">
+            <h2 class="content-rtl">סיכום ותרגילים בעברית עם דוגמאות</h2>
+            <div class="content-rtl">
+                <p><strong>NFS:</strong> שיתוף תיקיות ברשת. שרת – exports; לקוח – mount.</p>
+                <p><strong>גרסאות:</strong> NFSv3, NFSv4 (פורט 2049).</p>
+                <p><strong>פקודות שרת:</strong></p>
+                <ul style="list-style: none; padding: 0;">
+                    <li><code dir="ltr" class="cmd-ltr">exportfs -ra</code> – רענון exports</li>
+                    <li><code dir="ltr" class="cmd-ltr">showmount -e localhost</code> – הצגת exports</li>
+                </ul>
+                <p><strong>פקודות לקוח:</strong></p>
+                <ul style="list-style: none; padding: 0;">
+                    <li><code dir="ltr" class="cmd-ltr">mount server:/export /mnt</code> – mount NFS</li>
+                </ul>
+                <p><strong>תרגיל 1 – שרת:</strong></p>
+                <ul style="list-style: none; padding: 0;">
+                    <li>הוסף ל-exports: <code dir="ltr" class="cmd-ltr">/srv/nfs  *(ro,sync)</code></li>
+                    <li><code dir="ltr" class="cmd-ltr">exportfs -ra</code></li>
+                </ul>
+                <p><strong>תרגיל 2 – לקוח:</strong></p>
+                <ul style="list-style: none; padding: 0;">
+                    <li><code dir="ltr" class="cmd-ltr">showmount -e 192.168.1.1</code></li>
+                    <li><code dir="ltr" class="cmd-ltr">mount 192.168.1.1:/srv/nfs /mnt/nfs</code></li>
+                </ul>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>10: Network File System - NFS – שיתוף קבצים ברשת</p>
+    </footer>
+
+    <script src="js/script.js"></script>
+</body>
+</html>

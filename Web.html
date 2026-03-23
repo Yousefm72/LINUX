@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>11: Web Server</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .content-ltr { direction: ltr; text-align: left; }
+        .content-rtl { direction: rtl; text-align: right; }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>11: Web Server</h1>
+        <p class="subtitle">שרתי Web ב-Linux</p>
+        <nav class="header-links">
+            <a href="index.html" class="link-btn">Return to Home</a>
+        </nav>
+    </header>
+
+    <main>
+        <nav class="toc card">
+            <h2 class="content-rtl">תוכן העניינים</h2>
+            <ul class="content-rtl">
+                <li><a href="#basics">Web Server Basics</a></li>
+                <li><a href="#apache">Server Administration - Apache</a></li>
+                <li><a href="#vhosts">Virtual Hosts</a></li>
+                <li><a href="#reverse-proxy">Server Configuration - Reverse Proxy</a></li>
+                <li><a href="#summary">Summary and Practice in Hebrew with Examples</a></li>
+            </ul>
+        </nav>
+
+        <section class="card" id="basics">
+            <h2 class="content-ltr">Web Server Basics</h2>
+            <p class="content-rtl">
+                שרת Web מגיש דפי HTML, קבצים סטטיים ואפליקציות דינמיות ללקוחות דרך HTTP/HTTPS. 
+                השרתים הנפוצים: <strong>Apache</strong> (httpd), <strong>Nginx</strong>, <strong>Caddy</strong>.
+            </p>
+            <p class="content-rtl">
+                Apache – השרת הנפוץ ביותר, תומך ב-modules (PHP, SSL, proxy). Nginx – קל, מהיר, מתאים ל-reverse proxy. 
+                פורט 80 (HTTP), 443 (HTTPS).
+            </p>
+            <div class="login-status-cmds">
+                <div class="cmd-row">
+                    <code class="cmd-ltr">httpd / apache2</code>
+                    <span class="explain-rtl">תהליך Apache – RHEL משתמש ב-httpd, Debian ב-apache2.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">nginx</code>
+                    <span class="explain-rtl">שרת Nginx – קל ומהיר.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">DocumentRoot</code>
+                    <span class="explain-rtl">תיקיית השורש לתוכן האתר – בדרך כלל /var/www/html.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">port 80 / 443</code>
+                    <span class="explain-rtl">HTTP ו-HTTPS. דורש הרשאות או capabilities.</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="card" id="apache">
+            <h2 class="content-ltr">Server Administration - Apache</h2>
+            <p class="content-rtl">
+                ניהול Apache – הקבצים העיקריים: <code dir="ltr">/etc/httpd/conf/httpd.conf</code> (RHEL) 
+                או <code dir="ltr">/etc/apache2/apache2.conf</code> (Debian). תיקיית sites: <code dir="ltr">/etc/apache2/sites-available/</code>.
+            </p>
+            <div class="login-status-cmds">
+                <div class="cmd-row">
+                    <code class="cmd-ltr">systemctl start httpd</code>
+                    <span class="explain-rtl">מפעיל Apache (RHEL/Fedora).</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">systemctl start apache2</code>
+                    <span class="explain-rtl">מפעיל Apache (Debian/Ubuntu).</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">apachectl configtest</code>
+                    <span class="explain-rtl">בודק תחביר קובץ הגדרות.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">systemctl reload httpd</code>
+                    <span class="explain-rtl">טוען מחדש הגדרות בלי לנתק חיבורים.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">/var/log/httpd/access_log</code>
+                    <span class="explain-rtl">לוג גישה – בקשות שהתקבלו.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">/var/log/httpd/error_log</code>
+                    <span class="explain-rtl">לוג שגיאות.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">a2enmod mod_ssl</code>
+                    <span class="explain-rtl">מפעיל מודול (Debian) – דוגמה: SSL.</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="card" id="vhosts">
+            <h2 class="content-ltr">Virtual Hosts</h2>
+            <p class="content-rtl">
+                Virtual Hosts מאפשרים להריץ מספר אתרים על שרת אחד – לפי שם (name-based) או לפי IP. 
+                כל VirtualHost מגדיר DocumentRoot, ServerName, ואופציונלי ServerAlias.
+            </p>
+            <div class="config-block">
+                <p class="content-ltr"><strong>Example VirtualHost (Apache):</strong></p>
+                <pre class="content-ltr" dir="ltr" style="direction:ltr; text-align:left; background:rgba(0,0,0,0.2); padding:1rem; border-radius:8px; overflow-x:auto;"><code>&lt;VirtualHost *:80&gt;
+    ServerName www.example.com
+    DocumentRoot /var/www/example
+    &lt;Directory /var/www/example&gt;
+        AllowOverride All
+        Require all granted
+    &lt;/Directory&gt;
+&lt;/VirtualHost&gt;</code></pre>
+            </div>
+            <div class="login-status-cmds">
+                <div class="cmd-row">
+                    <code class="cmd-ltr">a2ensite example.conf</code>
+                    <span class="explain-rtl">מפעיל VirtualHost (Debian – יוצר קישור סימבולי).</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">a2dissite 000-default</code>
+                    <span class="explain-rtl">משבית אתר ברירת מחדל.</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">ServerName / DocumentRoot</code>
+                    <span class="explain-rtl">שם הדומיין ותיקיית התוכן.</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="card" id="reverse-proxy">
+            <h2 class="content-ltr">Server Configuration - Reverse Proxy</h2>
+            <p class="content-rtl">
+                Reverse Proxy מקבל בקשות מהלקוח ומעביר אותן לשרתים פנימיים (אפליקציה, API). 
+                מסתיר את המבנה הפנימי, מאפשר SSL termination, load balancing. 
+                Apache: <code dir="ltr">mod_proxy</code>; Nginx: <code dir="ltr">proxy_pass</code>.
+            </p>
+            <div class="config-block">
+                <p class="content-ltr"><strong>Apache – mod_proxy:</strong></p>
+                <pre class="content-ltr" dir="ltr" style="direction:ltr; text-align:left; background:rgba(0,0,0,0.2); padding:1rem; border-radius:8px; overflow-x:auto;"><code>ProxyPass /app http://localhost:8080/
+ProxyPassReverse /app http://localhost:8080/</code></pre>
+            </div>
+            <div class="config-block">
+                <p class="content-ltr"><strong>Nginx – proxy_pass:</strong></p>
+                <pre class="content-ltr" dir="ltr" style="direction:ltr; text-align:left; background:rgba(0,0,0,0.2); padding:1rem; border-radius:8px; overflow-x:auto;"><code>location /app {
+    proxy_pass http://localhost:8080/;
+    proxy_set_header Host $host;
+}</code></pre>
+            </div>
+            <div class="login-status-cmds">
+                <div class="cmd-row">
+                    <code class="cmd-ltr">ProxyPass</code>
+                    <span class="explain-rtl">מעביר בקשות לשרת backend (Apache).</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">proxy_pass</code>
+                    <span class="explain-rtl">מעביר בקשות (Nginx).</span>
+                </div>
+                <div class="cmd-row">
+                    <code class="cmd-ltr">a2enmod proxy proxy_http</code>
+                    <span class="explain-rtl">מפעיל מודולי proxy ב-Apache.</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="card highlight" id="summary">
+            <h2 class="content-rtl">סיכום ותרגול בעברית עם דוגמאות</h2>
+            <div class="content-rtl">
+                <p><strong>שרת Web:</strong> Apache, Nginx. פורט 80/443. DocumentRoot – תוכן האתר.</p>
+                <p><strong>ניהול Apache:</strong></p>
+                <ul style="list-style: none; padding: 0;">
+                    <li><code dir="ltr" class="cmd-ltr">systemctl start apache2</code> – הפעלה</li>
+                    <li><code dir="ltr" class="cmd-ltr">apachectl configtest</code> – בדיקת config</li>
+                </ul>
+                <p><strong>Virtual Hosts:</strong> ServerName, DocumentRoot. a2ensite / a2dissite.</p>
+                <p><strong>Reverse Proxy:</strong> ProxyPass (Apache), proxy_pass (Nginx) – העברת בקשות ל-backend.</p>
+                <p><strong>תרגיל 1 – VirtualHost:</strong></p>
+                <ul style="list-style: none; padding: 0;">
+                    <li>צור קובץ ב-sites-available עם ServerName ו-DocumentRoot</li>
+                    <li><code dir="ltr" class="cmd-ltr">a2ensite mysite.conf && systemctl reload apache2</code></li>
+                </ul>
+                <p><strong>תרגיל 2 – Reverse Proxy:</strong></p>
+                <ul style="list-style: none; padding: 0;">
+                    <li><code dir="ltr" class="cmd-ltr">a2enmod proxy proxy_http</code></li>
+                    <li>הוסף ProxyPass ו-ProxyPassReverse ל-VirtualHost</li>
+                </ul>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>11: Web Server – שרתי Web</p>
+    </footer>
+
+    <script src="js/script.js"></script>
+</body>
+</html>
